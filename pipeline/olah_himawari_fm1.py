@@ -31,9 +31,10 @@ def buat_px(info):
     l0 = math.radians(info["proj_sub_lon"])
     dpp = 65536.0 / info["cfac"]   # derajat sudut sapu per piksel
     coff, loff = info["coff"], info["loff"]
+    line0 = int(info.get("line0", 0) or 0)   # indeks 0-based baris pertama dalam plane (multi-segmen)
     def px(line, col):
         a = math.radians((col + 1.0 - coff) * dpp)
-        b = math.radians((line + 1.0 - loff) * dpp)
+        b = math.radians((loff - (line0 + line) - 1.0) * dpp)  # CGMS: y = (LOFF-line-1); baris 0 = paling utara
         ux = math.cos(b) * math.sin(a)
         uy = math.sin(b)
         uz = -math.cos(a) * math.cos(b)
@@ -128,12 +129,12 @@ def buat_grid(info, px, box):
 
 def tb_ir(info, plane):
     gain, off = info["gain"], info["off"]
-    rad = plane.astype(np.float64) * gain + off
+    rad = plane.astype(np.float64) * gain + off  # W/(m2 sr um)
     cwl = info["cwl"] * 1e-6
     h = 6.62607015e-34; c = 299792458.0; k = 1.380649e-23
     a1 = h * c / k / cwl
     b1 = (2 * h * c * c) / (cwl ** 5)
-    return a1 / np.log(b1 / np.maximum(rad, 1e-12) + 1.0)
+    return a1 / np.log(b1 / np.maximum(rad, 1e-12) * 1e-6 + 1.0)
 
 def selip(a):
     lo, hi = np.nanpercentile(a, 2), np.nanpercentile(a, 98)
@@ -153,7 +154,8 @@ def render_kasus(label, folder):
                 i, a = baca_hsd(p)
                 infos.append(i); tiles.append((int(i["seg_first_line"] or 0), a, p))
             tiles.sort(key=lambda t: t[0])
-            info = infos[0]
+            info = dict(infos[0])
+            info["line0"] = (tiles[0][0] - 1) if int(info["seg_total"] or 1) > 1 else None
             if int(info["seg_total"] or 1) > 1:
                 plane = np.vstack([a for _, a, _ in tiles])
                 info = dict(info); info["lines"] = sum(inf["lines"] for inf in infos)
@@ -182,10 +184,9 @@ def render_kasus(label, folder):
     def ke_iktil(arr_uint8, tw, th):
         return np.asarray(Image.fromarray(arr_uint8).resize((tw, th), Image.BILINEAR))
     th_ref, tw_ref = tb13.shape
-    tb7_res = np.asarray(Image.fromarray(((tb7 - 220.0) / 160.0 * 255).clip(0, 255).astype(np.uint8)).resize((tw_ref, th_ref), Image.BILINEAR)).astype(np.float64) / 255.0 * 160.0 + 220.0
-    fmask = np.clip((tb13 - tb7_res) / 35.0, 0, 1)
-    ta13 = np.clip((tb13 - 270) / 50.0, 0, 1)
-    ta07 = np.clip((tb7 - 260) / 100.0, 0, 1)
+    fmask = np.clip((tb7 - tb13 - 40.0) / 60.0, 0, 1)  # siang: surya memberi +15 K; pintu api dgn TB7-TB13 >= 40 K
+    ta13 = np.clip((tb13 - 250) / 70.0, 0, 1)
+    ta07 = np.clip((tb7 - 240) / 120.0, 0, 1)
     ir13_active = np.dstack([
         np.clip(ta13 + .95 * fmask, 0, 1),
         ta13 * np.clip(1 - .7 * fmask, 0, 1),
@@ -206,19 +207,21 @@ def render_kasus(label, folder):
     grid13 = buat_grid(bands[13][0], px13 := buat_px(bands[13][0]), (0, bands[13][1].shape[0] - 1, 0, bands[13][1].shape[1] - 1, True))
     panels = []
     gambar_tc = None
-    if 3 in tables:
+    if 3 in tables and 1 in tables and 2 in tables:
         Rr = tables[3]
-        Gg = tables[2] if 2 in tables else 0.5 * (Rr + tables[1])
-        Bbv = tables[1] if 1 in tables else Gg
+        Gg = tables[2]
+        Bbv = tables[1]
         hl = min(Rr.shape[0], Gg.shape[0], Bbv.shape[0]); hc = min(Rr.shape[1], Gg.shape[1], Bbv.shape[1])
         arr_tc = (np.dstack([Rr[:hl, :hc], Gg[:hl, :hc], Bbv[:hl, :hc]]) * 255).astype(np.uint8)
         gambar_tc = ("True color sederhana: B03 merah / B02 hijau / B01 biru", arr_tc)
         panels.append(gambar_tc)
         panels.append(("B03 0.64u peregangan 2-98%", (tables[3] * 255).astype(np.uint8)))
-    panels.append(("B13 10.8u TB (skala 270-320 K, makin terang = makin hangat)", (ta13 * 255).astype(np.uint8)))
-    panels.append(("B13 TB + merah: TB13-TB07 > 0 indikasi pintu api", (ir13_active * 255).astype(np.uint8)))
+    elif 3 in tables:
+        panels.append(("B03 0.64u peregangan 2-98% (tanpa B01/B02: tanpa warna asli)", (tables[3] * 255).astype(np.uint8)))
+    panels.append(("B13 10.8u TB (skala 250-320 K, makin terang = makin hangat)", (ta13 * 255).astype(np.uint8)))
+    panels.append(("B13 TB + merah: TB7-TB13 > 0 = pintu api", (ir13_active * 255).astype(np.uint8)))
     panels.append(("B07 3.9u TB (skala 260-360 K)", (ta07 * 255).astype(np.uint8)))
-    if 2 in tables:
+    if 4 in tables:
         panels.append(("B04 0.86u peregangan 2-98%", (tables[4] * 255).astype(np.uint8)))
     yy = 54
     for idx, (judul, arr) in enumerate(panels):
