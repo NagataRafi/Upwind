@@ -3,3 +3,32 @@ dist/
 node_modules_old/
 *.pyc
 
+# Dokumen internal (dibaca AI tiap sesi, tidak ikut repo)
+/PRD.md
+/Tujuan.md
+/ARSITEKTUR.md
+/Arsitektur.md
+/Agents.md
+
+# Rahasia dan lingkungan
+.env
+.env.*
+.venv/
+
+# Data mentah besar dan hasil unduhan
+data/raw/
+data/mentah/
+*.nc
+*.tif
+*.tiff
+
+# Bobot dan hasil pelatihan model
+model/**/bobot/
+model/**/weights/
+*.pt
+*.pth
+*.ckpt
+checkpoint*/
+
+# Hasil build Python
+__pycache__/
