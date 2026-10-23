@@ -1,0 +1,14 @@
+{
+  "last_processed_utc": "2026-10-22T04:44:00Z",
+  "latest_frame_utc": "2026-10-22T04:30:00Z",
+  "data_age_minutes": 90,
+  "sources_status": {
+    "himawari": "ok",
+    "hotspot": "ok",
+    "wind": "ok"
+  },
+  "night_no_smoke_update": false,
+  "cloud_cover_high": false,
+  "is_mock": true,
+  "note": "DATA CONTOH TIRUAN: skenario data basi (usia 90 menit, ambang 60 menit)"
+}

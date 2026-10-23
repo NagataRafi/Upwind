@@ -1,0 +1,72 @@
+[
+  {
+    "timestamp_utc": "2026-10-21T06:30:00Z",
+    "timestamp_safe": "2026-10-21T06-30-00Z",
+    "daylight": true,
+    "cloud_cover_fraction": 0.18,
+    "area_km2": 182.0,
+    "has_smoke": true,
+    "motion_quality": "good",
+    "scenario_type": "clear_yesterday"
+  },
+  {
+    "timestamp_utc": "2026-10-21T09:00:00Z",
+    "timestamp_safe": "2026-10-21T09-00-00Z",
+    "daylight": true,
+    "cloud_cover_fraction": 0.86,
+    "area_km2": 110.8,
+    "has_smoke": true,
+    "motion_quality": "poor",
+    "scenario_type": "heavy_cloud"
+  },
+  {
+    "timestamp_utc": "2026-10-21T15:00:00Z",
+    "timestamp_safe": "2026-10-21T15-00-00Z",
+    "daylight": false,
+    "cloud_cover_fraction": 0.3,
+    "area_km2": 0.0,
+    "has_smoke": false,
+    "motion_quality": "unavailable",
+    "scenario_type": "night"
+  },
+  {
+    "timestamp_utc": "2026-10-21T21:00:00Z",
+    "timestamp_safe": "2026-10-21T21-00-00Z",
+    "daylight": false,
+    "cloud_cover_fraction": 0.5,
+    "area_km2": 0.0,
+    "has_smoke": false,
+    "motion_quality": "unavailable",
+    "scenario_type": "night"
+  },
+  {
+    "timestamp_utc": "2026-10-22T01:00:00Z",
+    "timestamp_safe": "2026-10-22T01-00-00Z",
+    "daylight": true,
+    "cloud_cover_fraction": 0.28,
+    "area_km2": 62.1,
+    "has_smoke": true,
+    "motion_quality": "poor",
+    "scenario_type": "morning_detect"
+  },
+  {
+    "timestamp_utc": "2026-10-22T03:00:00Z",
+    "timestamp_safe": "2026-10-22T03-00-00Z",
+    "daylight": true,
+    "cloud_cover_fraction": 0.4,
+    "area_km2": 95.0,
+    "has_smoke": true,
+    "motion_quality": "unavailable",
+    "scenario_type": "uncomputable_motion"
+  },
+  {
+    "timestamp_utc": "2026-10-22T04:30:00Z",
+    "timestamp_safe": "2026-10-22T04-30-00Z",
+    "daylight": true,
+    "cloud_cover_fraction": 0.35,
+    "area_km2": 136.2,
+    "has_smoke": true,
+    "motion_quality": "moderate",
+    "scenario_type": "after_gap"
+  }
+]

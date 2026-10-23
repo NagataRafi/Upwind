@@ -1,0 +1,229 @@
+{
+  "frame": {
+    "timestamp_utc": "2026-10-22T03:00:00Z",
+    "processed_utc": "2026-10-22T03:14:00Z",
+    "region_id": "kalteng",
+    "bbox": [
+      111.0,
+      -3.5,
+      115.5,
+      0.5
+    ],
+    "mask_overlay": "/data/overlays/kalteng/2026-10-22T03-00-00Z/smoke_mask.png",
+    "probability_overlay": "/data/overlays/kalteng/2026-10-22T03-00-00Z/smoke_prob.png",
+    "uncertainty_overlay": "/data/overlays/kalteng/2026-10-22T03-00-00Z/smoke_unc.png",
+    "area_km2": 95.0,
+    "motion": {
+      "direction_deg": null,
+      "speed_kmh": null,
+      "quality": "unavailable",
+      "status_text": "tidak dapat dihitung"
+    },
+    "source_frames": [
+      "2026-10-22T02:40:00Z",
+      "2026-10-22T02:50:00Z",
+      "2026-10-22T03:00:00Z"
+    ],
+    "daylight": true,
+    "cloud_cover_fraction": 0.4,
+    "model_version": "unet_multiframe_v0.1_mock",
+    "code_version": "upwind-p1-mock-2026.10",
+    "is_mock": true
+  },
+  "hotspots": [
+    {
+      "id": "hp_kt_2026-10-22T03-00-00Z_01",
+      "time_utc": "2026-10-22T02:35:00Z",
+      "lat": -2.3,
+      "lon": 113.78,
+      "source": "VIIRS_NOAA20",
+      "confidence": 95,
+      "frp": 54.0,
+      "is_peat": true,
+      "is_mock": true
+    },
+    {
+      "id": "hp_kt_2026-10-22T03-00-00Z_02",
+      "time_utc": "2026-10-22T02:35:00Z",
+      "lat": -2.38,
+      "lon": 113.72,
+      "source": "VIIRS_SNPP",
+      "confidence": 88,
+      "frp": 31.5,
+      "is_peat": true,
+      "is_mock": true
+    },
+    {
+      "id": "hp_kt_2026-10-22T03-00-00Z_03",
+      "time_utc": "2026-10-22T02:35:00Z",
+      "lat": -2.25,
+      "lon": 114.15,
+      "source": "MODIS_Aqua",
+      "confidence": 60,
+      "frp": 14.1,
+      "is_peat": false,
+      "is_mock": true
+    },
+    {
+      "id": "hp_kt_2026-10-22T03-00-00Z_04",
+      "time_utc": "2026-10-22T02:35:00Z",
+      "lat": -2.45,
+      "lon": 113.82,
+      "source": "VIIRS_NOAA20",
+      "confidence": 82,
+      "frp": 26.7,
+      "is_peat": true,
+      "is_mock": true
+    },
+    {
+      "id": "hp_kt_2026-10-22T03-00-00Z_05",
+      "time_utc": "2026-10-22T02:35:00Z",
+      "lat": -2.1,
+      "lon": 113.7,
+      "source": "VIIRS_SNPP",
+      "confidence": 71,
+      "frp": 17.3,
+      "is_peat": true,
+      "is_mock": true
+    }
+  ],
+  "wind": [
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -2.5,
+      "lon": 112.125,
+      "u": 3.2,
+      "v": 3.4,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -2.5,
+      "lon": 113.25,
+      "u": 3.9,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -2.5,
+      "lon": 114.375,
+      "u": 3.9,
+      "v": 2.6,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -1.5,
+      "lon": 112.125,
+      "u": 3.9,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -1.5,
+      "lon": 113.25,
+      "u": 3.9,
+      "v": 3.4,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -1.5,
+      "lon": 114.375,
+      "u": 3.3,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -0.5,
+      "lon": 112.125,
+      "u": 3.9,
+      "v": 2.6,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -0.5,
+      "lon": 113.25,
+      "u": 3.3,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-22T03:00:00Z",
+      "lat": -0.5,
+      "lon": 114.375,
+      "u": 2.6,
+      "v": 3.4,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    }
+  ],
+  "ranked_sources": [
+    {
+      "frame_timestamp_utc": "2026-10-22T03:00:00Z",
+      "hotspot_id": "hp_kt_2026-10-22T03-00-00Z_01",
+      "rank": 1,
+      "score": 0.5,
+      "factors": {
+        "distance_to_upwind_edge_km": null,
+        "angle_difference_deg": null,
+        "hotspot_confidence": 0.95,
+        "peat_factor": 1.2
+      },
+      "explanation": "Peringkat heuristik darurat: Gerak asap tidak dapat dihitung, estimasi hanya berdasarkan kedekatan pusat dan daya FRP.",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    },
+    {
+      "frame_timestamp_utc": "2026-10-22T03:00:00Z",
+      "hotspot_id": "hp_kt_2026-10-22T03-00-00Z_02",
+      "rank": 2,
+      "score": 0.4,
+      "factors": {
+        "distance_to_upwind_edge_km": null,
+        "angle_difference_deg": null,
+        "hotspot_confidence": 0.88,
+        "peat_factor": 1.2
+      },
+      "explanation": "Peringkat heuristik darurat: Gerak asap tidak dapat dihitung, estimasi hanya berdasarkan kedekatan pusat dan daya FRP.",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    },
+    {
+      "frame_timestamp_utc": "2026-10-22T03:00:00Z",
+      "hotspot_id": "hp_kt_2026-10-22T03-00-00Z_03",
+      "rank": 3,
+      "score": 0.3,
+      "factors": {
+        "distance_to_upwind_edge_km": null,
+        "angle_difference_deg": null,
+        "hotspot_confidence": 0.6,
+        "peat_factor": 1.0
+      },
+      "explanation": "Peringkat heuristik darurat: Gerak asap tidak dapat dihitung, estimasi hanya berdasarkan kedekatan pusat dan daya FRP.",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    }
+  ]
+}

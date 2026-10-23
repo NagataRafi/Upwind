@@ -1,0 +1,14 @@
+{
+  "last_processed_utc": "2026-10-21T16:14:00Z",
+  "latest_frame_utc": "2026-10-21T16:00:00Z",
+  "data_age_minutes": 24,
+  "sources_status": {
+    "himawari": "ok",
+    "hotspot": "ok",
+    "wind": "ok"
+  },
+  "night_no_smoke_update": true,
+  "cloud_cover_high": false,
+  "is_mock": true,
+  "note": "DATA CONTOH TIRUAN: bingkai terbaru malam hari (23:00 WIB), tidak ada pembaruan asap"
+}

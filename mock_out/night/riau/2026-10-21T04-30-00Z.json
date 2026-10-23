@@ -1,0 +1,244 @@
+{
+  "frame": {
+    "timestamp_utc": "2026-10-21T04:30:00Z",
+    "processed_utc": "2026-10-21T04:44:00Z",
+    "region_id": "riau",
+    "bbox": [
+      100.0,
+      -1.1,
+      104.0,
+      2.5
+    ],
+    "mask_overlay": "/data/overlays/riau/2026-10-21T04-30-00Z/smoke_mask.png",
+    "probability_overlay": "/data/overlays/riau/2026-10-21T04-30-00Z/smoke_prob.png",
+    "uncertainty_overlay": "/data/overlays/riau/2026-10-21T04-30-00Z/smoke_unc.png",
+    "area_km2": 158.4,
+    "motion": {
+      "direction_deg": 52.0,
+      "speed_kmh": 14.5,
+      "quality": "good",
+      "status_text": "52° (Timur Laut) - 14.5 km/jam"
+    },
+    "source_frames": [
+      "2026-10-21T04:10:00Z",
+      "2026-10-21T04:20:00Z",
+      "2026-10-21T04:30:00Z"
+    ],
+    "daylight": true,
+    "cloud_cover_fraction": 0.22,
+    "model_version": "unet_multiframe_v0.1_mock",
+    "code_version": "upwind-p1-mock-2026.10",
+    "is_mock": true
+  },
+  "hotspots": [
+    {
+      "id": "hp_riau_2026-10-21T04-30-00Z_01",
+      "time_utc": "2026-10-21T04:05:00Z",
+      "lat": 1.27,
+      "lon": 101.65,
+      "source": "VIIRS_NOAA20",
+      "confidence": 92,
+      "frp": 38.5,
+      "is_peat": true,
+      "is_mock": true
+    },
+    {
+      "id": "hp_riau_2026-10-21T04-30-00Z_02",
+      "time_utc": "2026-10-21T04:05:00Z",
+      "lat": 1.21,
+      "lon": 101.58,
+      "source": "VIIRS_SNPP",
+      "confidence": 84,
+      "frp": 22.0,
+      "is_peat": true,
+      "is_mock": true
+    },
+    {
+      "id": "hp_riau_2026-10-21T04-30-00Z_03",
+      "time_utc": "2026-10-21T04:05:00Z",
+      "lat": 1.5,
+      "lon": 102.0,
+      "source": "MODIS_Terra",
+      "confidence": 65,
+      "frp": 12.4,
+      "is_peat": false,
+      "is_mock": true
+    },
+    {
+      "id": "hp_riau_2026-10-21T04-30-00Z_04",
+      "time_utc": "2026-10-21T04:05:00Z",
+      "lat": 1.05,
+      "lon": 101.75,
+      "source": "VIIRS_NOAA20",
+      "confidence": 78,
+      "frp": 19.8,
+      "is_peat": true,
+      "is_mock": true
+    },
+    {
+      "id": "hp_riau_2026-10-21T04-30-00Z_05",
+      "time_utc": "2026-10-21T04:05:00Z",
+      "lat": 1.6,
+      "lon": 101.5,
+      "source": "VIIRS_SNPP",
+      "confidence": 55,
+      "frp": 8.2,
+      "is_peat": false,
+      "is_mock": true
+    }
+  ],
+  "wind": [
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": -0.2,
+      "lon": 101.0,
+      "u": 3.2,
+      "v": 3.4,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": -0.2,
+      "lon": 102.0,
+      "u": 3.9,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": -0.2,
+      "lon": 103.0,
+      "u": 3.9,
+      "v": 2.6,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": 0.7,
+      "lon": 101.0,
+      "u": 3.9,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": 0.7,
+      "lon": 102.0,
+      "u": 3.9,
+      "v": 3.4,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": 0.7,
+      "lon": 103.0,
+      "u": 3.3,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": 1.6,
+      "lon": 101.0,
+      "u": 3.9,
+      "v": 2.6,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": 1.6,
+      "lon": 102.0,
+      "u": 3.3,
+      "v": 3.1,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    },
+    {
+      "time_utc": "2026-10-21T04:30:00Z",
+      "lat": 1.6,
+      "lon": 103.0,
+      "u": 2.6,
+      "v": 3.4,
+      "height_m": 10,
+      "source": "ERA5_Land_10m_mock",
+      "is_mock": true
+    }
+  ],
+  "ranked_sources": [
+    {
+      "frame_timestamp_utc": "2026-10-21T04:30:00Z",
+      "hotspot_id": "hp_riau_2026-10-21T04-30-00Z_01",
+      "rank": 1,
+      "score": 0.94,
+      "factors": {
+        "distance_to_upwind_edge_km": 3.8,
+        "angle_difference_deg": 6.5,
+        "hotspot_confidence": 0.92,
+        "peat_factor": 1.2
+      },
+      "explanation": "Sangat kuat: Berjarak 3,8 km di hulu angin (selisih sudut 6,5°) di lahan gambut berdaya api tinggi (38.5 MW).",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    },
+    {
+      "frame_timestamp_utc": "2026-10-21T04:30:00Z",
+      "hotspot_id": "hp_riau_2026-10-21T04-30-00Z_02",
+      "rank": 2,
+      "score": 0.82,
+      "factors": {
+        "distance_to_upwind_edge_km": 8.1,
+        "angle_difference_deg": 14.2,
+        "hotspot_confidence": 0.84,
+        "peat_factor": 1.2
+      },
+      "explanation": "Kandidat sekunder: 8,1 km di sektor hulu di lahan gambut dengan kepercayaan 84%.",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    },
+    {
+      "frame_timestamp_utc": "2026-10-21T04:30:00Z",
+      "hotspot_id": "hp_riau_2026-10-21T04-30-00Z_04",
+      "rank": 3,
+      "score": 0.65,
+      "factors": {
+        "distance_to_upwind_edge_km": 14.5,
+        "angle_difference_deg": 28.0,
+        "hotspot_confidence": 0.78,
+        "peat_factor": 1.2
+      },
+      "explanation": "Kemungkinan lebih rendah: Berjarak 14,5 km dari batas hulu asap dengan deviasi sudut 28°.",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    },
+    {
+      "frame_timestamp_utc": "2026-10-21T04:30:00Z",
+      "hotspot_id": "hp_riau_2026-10-21T04-30-00Z_03",
+      "rank": 4,
+      "score": 0.31,
+      "factors": {
+        "distance_to_upwind_edge_km": 21.0,
+        "angle_difference_deg": 165.0,
+        "hotspot_confidence": 0.65,
+        "peat_factor": 1.0
+      },
+      "explanation": "Kemungkinan kecil: Posisi berada di hilir arah gerak asap dan bukan lahan gambut.",
+      "method_version": "heuristik_v0.1_mock",
+      "is_mock": true
+    }
+  ]
+}

@@ -12,6 +12,11 @@ import struct
 import math
 from datetime import datetime, timezone, timedelta
 
+# KEPUTUSAN 2026-10-23: Ambang usia data basi ditetapkan 60 menit (PRD.md NFR1
+# sasaran latensi < 60 menit pada siang hari). Konstanta tunggal dipakai
+# generator; web memakai nilai sama di web/src/api.ts dan harus diubah serentak.
+STALE_THRESHOLD_MINUTES = 60
+
 def create_png_rgba(width, height, pixel_func):
     """
     Membuat file PNG RGBA murni tanpa pustaka pihak ketiga menggunakan zlib dan struct.
@@ -100,13 +105,30 @@ def generate_smoke_images(out_dir, has_smoke=True, center_pct=(0.5, 0.5), radius
     with open(os.path.join(out_dir, "smoke_unc.png"), "wb") as f:
         f.write(create_png_rgba(width, height, unc_pixel))
 
-def build_mock_dataset(target_data_dir):
+def build_mock_dataset(target_data_dir, scenario="normal"):
     """
     Menghasilkan data tiruan lengkap untuk Riau dan Kalimantan Tengah.
     Mencakup semua skenario khusus: cerah, malam, awan tebal, bingkai hilang, data basi, gerak asap tak terhitung.
+    Argumen scenario:
+    - "normal": semua skenario ada, bingkai terbaru cerah, data segar.
+    - "stale" : bingkai terbaru berumur 90 menit (melewati STALE_THRESHOLD_MINUTES);
+                status.json melaporkan data basi. Riwayat lama tetap tampil.
+    - "night" : bingkai terbaru berada di malam hari sehingga
+                night_no_smoke_update pada status.json bernilai benar.
+    Tidak ada bidang kontrak yang baru; perubahan hanya pada isi data.
+    Semua keluaran tetap is_mock = True.
     """
     os.makedirs(target_data_dir, exist_ok=True)
     base_time = datetime(2026, 10, 22, 6, 0, 0, tzinfo=timezone.utc) # 13:00 WIB
+
+    if scenario == "night":
+        # 23:00 WIB: malam. Offset lama dipetakan ke offset baru agar dua
+        # skenario malam menjadi paling baru dan riwayat cerah turun ke
+        # pagi hari. Riwayat cerah hanya tersedia ~15 jam mundur (batas
+        # matahari terbit 05:30 WIB), bukan 24 jam penuh - sudah jujur.
+        base_time = datetime(2026, 10, 21, 16, 0, 0, tzinfo=timezone.utc) # 23:00 WIB
+    # (penyesuaian daftar skenario dilakukan setelah daftar scenarios
+    #  didefinisikan di bawah)
 
     regions = {
         "riau": {
@@ -234,6 +256,28 @@ def build_mock_dataset(target_data_dir):
             "source_gap": False
         }
     ]
+
+    # Penyesuaian skenario terpilih: malam = dua scene malam jadi paling baru,
+    # stale = buang scene terbaru
+    if scenario == "night":
+        NIGHT_OFFSETS = { # kunci: offset lama, isi: offset baru
+            9.0: 0.0,    # night          -> 23:00 WIB (terbaru, malam)
+            15.0: 1.0,   # night          -> 22:00 WIB (malam)
+            21.0: 4.5,   # heavy_cloud    -> 18:30 WIB (batas senja)
+            23.5: 5.5,   # clear_yesterday-> 17:30 WIB
+            1.5: 9.0,    # after_gap      -> 14:00 WIB
+            0.0: 11.5,   # clear_normal   -> 11:30 WIB
+            3.0: 13.5,   # uncomputable   -> 09:30 WIB
+            5.0: 15.0    # morning_detect -> 07:30 WIB
+        }
+        for s in scenarios:
+            s["offset_hours"] = NIGHT_OFFSETS[s["offset_hours"]]
+    elif scenario == "stale":
+        # Buang bingkai terbaru (offset lama 0.0 -> alih 06:00 UTC). Bingkai
+        # terakhir tersisa 04:30 UTC (11:30 WIB), diproses 04:44 UTC, dan
+        # generator memandang "sekarang" = 06:14 UTC, maka usia data 90 menit
+        # > STALE_THRESHOLD_MINUTES. Riwayat lebih lama tetap tampil.
+        scenarios[:] = [s for s in scenarios if s["offset_hours"] > 0.0]
 
     for reg_id, reg_info in regions.items():
         reg_dir = os.path.join(target_data_dir, reg_id)
@@ -462,21 +506,52 @@ def build_mock_dataset(target_data_dir):
         with open(index_file_path, "w", encoding="utf-8") as f:
             json.dump(frame_index, f, indent=2, ensure_ascii=False)
 
-    # Status Sistem Global (termasuk contoh data tertunda / basi bila diperlukan)
-    system_status = {
-        "last_processed_utc": (base_time + timedelta(minutes=14)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "latest_frame_utc": base_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "data_age_minutes": 24, # Masih dalam rentang aman normal < 60 menit
-        "sources_status": {
-            "himawari": "ok",
-            "hotspot": "ok",
-            "wind": "ok"
-        },
-        "night_no_smoke_update": False,
-        "cloud_cover_high": False,
-        "is_mock": True,
-        "note": "DATA CONTOH TIRUAN untuk verifikasi FR-W dasbor Upwind"
-    }
+    # Status Sistem Global, menurut skenario terpilih (tanpa bidang kontrak baru)
+    if scenario == "stale":
+        system_status = {
+            "last_processed_utc": "2026-10-22T04:44:00Z",
+            "latest_frame_utc": "2026-10-22T04:30:00Z",
+            "data_age_minutes": 90, # >= STALE_THRESHOLD_MINUTES (60); "sekarang" generator = 06:14 UTC
+            "sources_status": {
+                "himawari": "ok",
+                "hotspot": "ok",
+                "wind": "ok"
+            },
+            "night_no_smoke_update": False,
+            "cloud_cover_high": False,
+            "is_mock": True,
+            "note": "DATA CONTOH TIRUAN: skenario data basi (usia 90 menit, ambang %d menit)" % STALE_THRESHOLD_MINUTES
+        }
+    elif scenario == "night":
+        system_status = {
+            "last_processed_utc": (base_time + timedelta(minutes=14)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "latest_frame_utc": base_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "data_age_minutes": 24,
+            "sources_status": {
+                "himawari": "ok",
+                "hotspot": "ok",
+                "wind": "ok"
+            },
+            "night_no_smoke_update": True,
+            "cloud_cover_high": False,
+            "is_mock": True,
+            "note": "DATA CONTOH TIRUAN: bingkai terbaru malam hari (23:00 WIB), tidak ada pembaruan asap"
+        }
+    else:
+        system_status = {
+            "last_processed_utc": (base_time + timedelta(minutes=14)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "latest_frame_utc": base_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "data_age_minutes": 24, # Masih dalam rentang aman normal < STALE_THRESHOLD_MINUTES
+            "sources_status": {
+                "himawari": "ok",
+                "hotspot": "ok",
+                "wind": "ok"
+            },
+            "night_no_smoke_update": False,
+            "cloud_cover_high": False,
+            "is_mock": True,
+            "note": "DATA CONTOH TIRUAN untuk verifikasi FR-W dasbor Upwind"
+        }
     with open(os.path.join(target_data_dir, "status.json"), "w", encoding="utf-8") as f:
         json.dump(system_status, f, indent=2, ensure_ascii=False)
 
@@ -485,4 +560,9 @@ def build_mock_dataset(target_data_dir):
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "..", "data")
-    build_mock_dataset(os.path.abspath(out))
+    # Argumen kedua: skenario (normal | stale | night), bawaan normal
+    scen = "normal"
+    for a in sys.argv[2:]:
+        if a in ("normal", "stale", "night"):
+            scen = a
+    build_mock_dataset(os.path.abspath(out), scenario=scen)
