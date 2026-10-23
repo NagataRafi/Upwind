@@ -117,22 +117,25 @@ def render_kotak(label, folder, nm_kotak):
     th = max(bands[b][1].shape[0] for b in vis)
     tc = max(bands[b][1].shape[1] for b in vis)
     def ke_grid(item):
-        bx, arr = item[2], item[1]
+        bx, arr, binfo = item[2], item[1], item[0]
         if arr.shape == (th, tc):
-            return np.asarray(arr, dtype=np.float64), bx
-        s = float(arr.shape[1]) / tc
+            return np.asarray(arr, dtype=np.float64), bx, binfo
+        s = float(arr.shape[1]) / float(tc)
         l0, _, c0, _ = bx
         bx2 = (int(round(l0 / s)), int(round(l0 / s + (th - 1))),
                int(round(c0 / s)), int(round(c0 / s + (tc - 1))))
-        return np.asarray(Image.fromarray(arr).resize((tc, th), Image.BILINEAR), dtype=np.float64), bx2
+        binfo2 = dict(binfo)
+        binfo2["cfac"] = binfo["cfac"] / s   # geometri pada grid target hasil rescale
+        return np.asarray(Image.fromarray(arr).resize((tc, th), Image.BILINEAR), dtype=np.float64), bx2, binfo2
     chs = {b: ke_grid(bands[b]) for b in vis}
     komposit = None
     if 1 in chs and 2 in chs and 3 in chs:
-        ch1, bx1 = chs[1]; ch2, _ = chs[2]; ch3, _ = chs[3]
+        ch1, bx1, in1 = chs[1]; ch2, _, _ = chs[2]; ch3, _, _ = chs[3]
         semua = np.concatenate([ch1.ravel(), ch2.ravel(), ch3.ravel()])
         lo, hi = np.nanpercentile(semua, 2), np.nanpercentile(semua, 98)
         komposit = (np.clip((np.dstack([ch3, ch2, ch1]) - lo) / (hi - lo), 0, 1) * 255).astype(np.uint8)
-        info_k, box_k = bands[1][0], bx1
+        b_finest = max(vis, key=lambda b: bands[b][1].shape[1])
+        info_k, box_k = chs[b_finest][2], chs[b_finest][1]
     elif 3 in chs:
         komposit = (selip(bands[3][1]) * 255).astype(np.uint8)
         info_k, box_k = bands[3][0], bands[3][2]
