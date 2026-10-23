@@ -76,14 +76,46 @@ export const TimeSlider: React.FC<TimeSliderProps> = ({
 
         {/* FR-W9: Slider Waktu 24 Jam */}
         <div className="flex-1 flex flex-col justify-center px-2">
-          <input
-            type="range"
-            min="0"
-            max={indexItems.length - 1}
-            value={currentIndex}
-            onChange={(e) => onSelectIndex(parseInt(e.target.value, 10))}
-            className="w-full accent-red-500 h-2 bg-slate-700 rounded-lg cursor-pointer"
-          />
+          <div className="relative">
+            <input
+              type="range"
+              min="0"
+              max={indexItems.length - 1}
+              value={currentIndex}
+              onChange={(e) => onSelectIndex(parseInt(e.target.value, 10))}
+              className="w-full accent-red-500 h-2 bg-slate-700 rounded-lg cursor-pointer"
+            />
+            <div className="relative h-4">
+              {/* Penanda bingkai malam */}
+              {indexItems.map((it, i) => (
+                (!it.daylight) && (
+                  <span
+                    key={`night-${it.timestamp_utc}`}
+                    className="absolute -top-3 text-indigo-300"
+                    style={{ left: `${(i / Math.max(1, indexItems.length - 1)) * 100}%` }}
+                    title={`Bingkai malam: ${formatTimeOnlyWIB(it.timestamp_utc)} - tidak ada pembaruan asap`}
+                  >
+                    <Moon className="w-3 h-3" />
+                  </span>
+                )
+              ))}
+              {/* Penanda celah antar bingkai (malam/data hilang) */}
+              {indexItems.slice(1).map((it, j) => {
+                const prev = indexItems[j];
+                const dt = (new Date(it.timestamp_utc).getTime() - new Date(prev.timestamp_utc).getTime()) / 60000;
+                if (dt < 60) return null;
+                const left = (((j + 0.5) / Math.max(1, indexItems.length - 1)) * 100);
+                return (
+                  <span
+                    key={`gap-${prev.timestamp_utc}`}
+                    className="absolute top-1 h-2 w-0.5 bg-slate-500"
+                    style={{ left: `${left}%` }}
+                    title={`Celah ${Math.round(dt / 60)} jam: ${formatTimeOnlyWIB(prev.timestamp_utc)} - ${formatTimeOnlyWIB(it.timestamp_utc)} (malam/data tidak ada pembaruan)`}
+                  />
+                );
+              })}
+            </div>
+          </div>
           {/* Tanda-tanda titik waktu penting */}
           <div className="flex justify-between text-[10px] text-slate-400 mt-1">
             <span>{formatTimeOnlyWIB(indexItems[0].timestamp_utc)}</span>

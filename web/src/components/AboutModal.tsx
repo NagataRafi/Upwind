@@ -72,8 +72,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
 
           {/* FR-W14: Atribusi Sumber Data Resmi */}
           <div className="space-y-2 pt-2 border-t border-slate-800">
+            <div className="p-2 rounded-lg bg-orange-950/50 border border-orange-500/40 text-orange-200">
+              <strong>Data yang ditampilkan saat ini adalah data contoh</strong> (penanda <code>is_mock</code>), dibuat oleh generator untuk verifikasi antarmuka. Bukan data asli Himawari, FIRMS, atau ERA5, dan tidak boleh dijadikan acuan operasional lapangan.
+            </div>
             <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">
-              Atribusi Sumber Data (FR-W14)
+              Atribusi Sumber Data yang Direncanakan (FR-W14)
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
               <div className="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
@@ -90,7 +93,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
                 <span className="font-semibold text-white block">Peta Dasar</span>
-                <span className="text-slate-400">CartoDB Positron / OpenStreetMap Contributors</span>
+                <span className="text-slate-400">OpenStreetMap Contributors</span>
               </div>
             </div>
           </div>

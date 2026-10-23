@@ -9,6 +9,7 @@ import { LayerControl } from './components/LayerControl';
 import { UpwindPanel } from './components/UpwindPanel';
 import { TimeSlider } from './components/TimeSlider';
 import { AboutModal } from './components/AboutModal';
+import { FooterBar } from './components/FooterBar';
 
 export const App: React.FC = () => {
   const [regionId, setRegionId] = useState<RegionId>('riau');
@@ -166,6 +167,9 @@ export const App: React.FC = () => {
         currentIndex={currentIndex}
         onSelectIndex={(idx) => setCurrentIndex(idx)}
       />
+
+      {/* FR-W14: Atribusi kaki halaman */}
+      <FooterBar status={status} onOpenAbout={() => setIsAboutOpen(true)} />
 
       {/* FR-W13, FR-W14: Modal Tentang & Keterbatasan */}
       <AboutModal
