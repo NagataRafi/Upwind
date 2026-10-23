@@ -1,6 +1,6 @@
 import React from 'react';
 import { SystemStatus, SmokeFrame } from '../types';
-import { formatToWIB } from '../api';
+import { formatToWIB, DATA_STALE_THRESHOLD_MINUTES } from '../api';
 import { Clock, Moon, CloudRain, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface StatusBannerProps {
@@ -13,7 +13,9 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status, currentFrame
 
   const isNight = !currentFrame.daylight;
   const isHighCloud = currentFrame.cloud_cover_fraction > 0.7;
-  const isDataStale = (status?.data_age_minutes ?? 0) > 60;
+  const isDataStale =
+    (status?.data_age_minutes ?? 0) > (DATA_STALE_THRESHOLD_MINUTES ?? 60);
+  // Sinkron dengan STALE_THRESHOLD_MINUTES di mock/generate_mock_data.py
   const motionUncomputable = currentFrame.motion.quality === 'unavailable';
 
   return (
@@ -50,7 +52,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status, currentFrame
         {isDataStale && (
           <div className="flex items-center gap-1.5 bg-rose-950/80 border border-rose-500/40 text-rose-200 px-2.5 py-1 rounded-md font-medium">
             <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-            <span>Peringatan: Usia data telah mencapai {status?.data_age_minutes} menit (melebihi ambang 60 mnt)</span>
+            <span>Peringatan: Usia data telah mencapai {status?.data_age_minutes} menit (melebihi ambang {DATA_STALE_THRESHOLD_MINUTES} mnt)</span>
           </div>
         )}
       </div>

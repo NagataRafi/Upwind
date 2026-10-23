@@ -44,13 +44,13 @@ export const MapView: React.FC<MapViewProps> = ({
       center: initialCenter,
       zoom: initialZoom,
       zoomControl: false,
-      attributionControl: false
+      attributionControl: true
     });
 
-    // Peta Dasar CartoDB Positron yang bersih dan kontras tinggi untuk asap
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Tile OpenStreetMap gratis, tanpa kunci API; atribusi wajib ditampilkan
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      subdomains: 'abcd'
+      attribution: '&copy; Kontributor OpenStreetMap'
     }).addTo(map);
 
     // Zoom control di kanan bawah agar nyaman di mobile

@@ -5,6 +5,10 @@
 
 import { SystemStatus, FrameIndexItem, FrameBundle, RegionId } from './types';
 
+// KEPUTUSAN 2026-10-23: Ambang usia data basi 60 menit (sama dengan
+// STALE_THRESHOLD_MINUTES di mock/generate_mock_data.py; ubah serentak).
+export const DATA_STALE_THRESHOLD_MINUTES = 60;
+
 // Format waktu UTC string ke tampilan WIB (UTC+7)
 export function formatToWIB(utcString: string): string {
   try {
