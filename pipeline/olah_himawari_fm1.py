@@ -177,13 +177,21 @@ def render_kasus(label, folder):
             inf, pl = bands[band]
             tables[band] = selip(pl)
     tb7 = tb_ir(bands[7][0], bands[7][1])
-    # samakan ukuran antara panel (grid bisa beda res; ambil potong sama? [beda]) -> resize PIL saat rendering
+    tile = 440
+    # kembalikan masker api pada grid B13 via resize kasar dari B07
+    def ke_iktil(arr_uint8, tw, th):
+        return np.asarray(Image.fromarray(arr_uint8).resize((tw, th), Image.BILINEAR))
+    th_ref, tw_ref = tb13.shape
+    tb7_res = np.asarray(Image.fromarray(((tb7 - 220.0) / 160.0 * 255).clip(0, 255).astype(np.uint8)).resize((tw_ref, th_ref), Image.BILINEAR)).astype(np.float64) / 255.0 * 160.0 + 220.0
+    fmask = np.clip((tb13 - tb7_res) / 35.0, 0, 1)
     ta13 = np.clip((tb13 - 270) / 50.0, 0, 1)
-    fmask = np.clip((tb13 - tb7) / 35.0, 0, 1) if tb7.shape == tb13.shape else None
-    ir13_active = np.dstack([np.clip(ta13 + .95 * fmask, 0, 1), ta13 * np.clip(1 - .7 * fmask, 0, 1), ta13 * np.clip(1 - .7 * fmask, 0, 1)]) if fmask is not None else None
     ta07 = np.clip((tb7 - 260) / 100.0, 0, 1)
-    W, tile = 950, 455
-    nrows = 3
+    ir13_active = np.dstack([
+        np.clip(ta13 + .95 * fmask, 0, 1),
+        ta13 * np.clip(1 - .7 * fmask, 0, 1),
+        ta13 * np.clip(1 - .7 * fmask, 0, 1)])
+    W = 950
+    nrows = (len(panels_poss := None) or 3) if False else 3
     Himg = 64 + nrows * (tile + 24)
     im = Image.new("RGB", (W, Himg), (16, 18, 26))
     dr = ImageDraw.Draw(im)
@@ -193,41 +201,51 @@ def render_kasus(label, folder):
     except Exception:
         f = fb = ImageFont.load_default()
     dr.text((10, 4), label, fill=(240, 238, 225), font=fb)
-    dr.text((10, 24), "Jam citra: 03:00 UTC = 10:00 WIB. Grid satelit di otomatis; garis kisi tiap 5 derajat (lihat gambar)", fill=(200, 205, 215), font=f)
+    dr.text((10, 24), "Citra jam 03:00 UTC = 10:00 WIB. Garis kisi lat/lon tiap 5 derajat (label kecil).", fill=(200, 205, 215), font=f)
+    # susun panel: (judul, aktor(PIL atau uint8w), info grid untuk kisi)
+    grid13 = buat_grid(bands[13][0], px13 := buat_px(bands[13][0]), (0, bands[13][1].shape[0] - 1, 0, bands[13][1].shape[1] - 1, True))
     panels = []
-    panels.append(("True color B03(red)/B02(green)/B01(blue) 2-98%", (
-        (tables.get(3), 0),
-        (tables.get(2), 1),
-        (tables.get(1), 2))))
-    panels.append(("B13 10.8 um TB 270-320 K (gelap=dingin/awan tinggi, terang=dum)", (ta13, None)))
-    panels.append(("B07 3.9 um TB 260-360 K", (ta07, None)))
-    panels.append(("B13 TB + merah = TB13-TB07 (indikasi)/asap terdanger jua", (ir13_active, None)))
+    gambar_tc = None
     if 3 in tables:
-        panels.append(("B03 0.64 u (visible)", (tables[3], None)))
-    if 4 in tables:
-        panels.append(("B04 0.86 u (near-IR)", (tables[4], None)))
+        Rr = tables[3]
+        Gg = tables[2] if 2 in tables else 0.5 * (Rr + tables[1])
+        Bbv = tables[1] if 1 in tables else Gg
+        hl = min(Rr.shape[0], Gg.shape[0], Bbv.shape[0]); hc = min(Rr.shape[1], Gg.shape[1], Bbv.shape[1])
+        arr_tc = (np.dstack([Rr[:hl, :hc], Gg[:hl, :hc], Bbv[:hl, :hc]]) * 255).astype(np.uint8)
+        gambar_tc = ("True color sederhana: B03 merah / B02 hijau / B01 biru", arr_tc)
+        panels.append(gambar_tc)
+        panels.append(("B03 0.64u peregangan 2-98%", (tables[3] * 255).astype(np.uint8)))
+    panels.append(("B13 10.8u TB (skala 270-320 K, makin terang = makin hangat)", (ta13 * 255).astype(np.uint8)))
+    panels.append(("B13 TB + merah: TB13-TB07 > 0 indikasi pintu api", (ir13_active * 255).astype(np.uint8)))
+    panels.append(("B07 3.9u TB (skala 260-360 K)", (ta07 * 255).astype(np.uint8)))
+    if 2 in tables:
+        panels.append(("B04 0.86u peregangan 2-98%", (tables[4] * 255).astype(np.uint8)))
     yy = 54
-    for idx, (judul, pack) in enumerate(panels):
+    for idx, (judul, arr) in enumerate(panels):
+        if arr is None:
+            continue
         r, c8 = divmod(idx, 2)
         x = 10 + c8 * (tile + 15)
         yyr = yy + r * (tile + 26)
         dr.text((x, yyr), judul, fill=(225, 228, 235), font=f)
-        if pack[0] is None:
-            continue
-        if c8 == 0 and idx == 0:
-            # sudah warna
-            R, G, B = tables[3], tables[2] if 2 in tables else None, tables[1] if 1 in tables else None
-            if R is None: continue
-            if G is None: G = 0.5 * (R + B)
-            hl = min(R.shape[0], G.shape[0], B.shape[0])
-            hc = min(R.shape[1], G.shape[1], B.shape[1])
-            arr = (np.dstack([R[:hl, :hc], G[:hl, :hc], B[:hl, :hc]]) * 255).astype(np.uint8)
-        else:
-            arr = (pack[0] * 255).astype(np.uint8)
         ph, pw = arr.shape[0], arr.shape[1]
         scale = tile / max(pw, ph)
-        pil = Image.fromarray(arr).resize((int(pw * scale), int(ph * scale)))
-        dr.rectangle([x - 1, yyr + 20, x + 1 + pil.width, yyr + 22 + pil.height], outline=(90, 95, 105))
+        pw2, ph2 = int(pw * scale), int(ph * scale)
+        pil = Image.fromarray(arr).resize((pw2, ph2))
+        dr.rectangle([x - 1, yyr + 20, x + 1 + pw2, yyr + 22 + ph2], outline=(90, 95, 105))
+        # kisi untuk panel IR/lain memakai grid13 bila bentuk sama persis sumber TB13
+        try:
+            if (arr.shape[0] == th_ref and arr.shape[1] == tw_ref):
+                for k2, la in grid13["lat"]:
+                    yyz = int(k2 * scale)
+                    dr.line([x, yyr + 21 + yyz, x + pw2, yyr + 21 + yyz], fill=(255, 210, 100), width=1)
+                    dr.text((x + 2, yyr + 21 + yyz + 1), "%d" % la, fill=(255, 210, 100), font=f)
+                for k2, lo in grid13["lon"]:
+                    xxz = int(k2 * scale)
+                    dr.line([x + xxz, yyr + 21, x + xxz, yyr + 21 + ph2], fill=(255, 210, 100), width=1)
+                    dr.text((x + xxz + 2, yyr + 23), "%d" % lo, fill=(255, 210, 100), font=f)
+        except Exception:
+            pass
         im.paste(pil.convert("RGB"), (x, yyr + 21))
     nama = os.path.join(OUT, "fm1_%s.png" % label)
     im.save(nama)
