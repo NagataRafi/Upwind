@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Upwind: Pemantau Asap Karhutla dan Titik Panas Hulu Asap</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Tailwind CSS CDN Fallback for instant lightweight rendering -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              peat: '#8B4513',
+              smoke: '#4A5568',
+              upwind: {
+                50: '#f0fdf4',
+                500: '#16a34a',
+                600: '#15803d',
+                700: '#166534',
+                800: '#14532d',
+                900: '#052e16'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Memastikan Leaflet container mengisi area penuh */
+      .leaflet-container {
+        width: 100%;
+        height: 100%;
+        font-family: inherit;
+        z-index: 10;
+      }
+      /* Custom scrollbar untuk panel */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 text-slate-800 antialiased overflow-hidden select-none">
+    <div id="root" class="h-screen w-screen flex flex-col"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

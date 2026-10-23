@@ -1,0 +1,14 @@
+{
+  "last_processed_utc": "2026-10-22T06:14:00Z",
+  "latest_frame_utc": "2026-10-22T06:00:00Z",
+  "data_age_minutes": 24,
+  "sources_status": {
+    "himawari": "ok",
+    "hotspot": "ok",
+    "wind": "ok"
+  },
+  "night_no_smoke_update": false,
+  "cloud_cover_high": false,
+  "is_mock": true,
+  "note": "DATA CONTOH TIRUAN untuk verifikasi FR-W dasbor Upwind"
+}
