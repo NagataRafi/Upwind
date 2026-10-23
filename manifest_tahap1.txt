@@ -1,0 +1,5 @@
+https://noaa-himawari8.s3.amazonaws.com/AHI-L1b-FLDK/2019/09/14/0300/HS_H08_20190914_0300_B01_FLDK_R10_S0101.DAT.bz2	D:\upwind_raw\noaa-himawari8\asap_2019-09-14\HS_H08_20190914_0300_B01_FLDK_R10_S0101.DAT.bz2
+https://noaa-himawari8.s3.amazonaws.com/AHI-L1b-FLDK/2019/09/14/0300/HS_H08_20190914_0300_B02_FLDK_R10_S0101.DAT.bz2	D:\upwind_raw\noaa-himawari8\asap_2019-09-14\HS_H08_20190914_0300_B02_FLDK_R10_S0101.DAT.bz2
+https://noaa-himawari8.s3.amazonaws.com/AHI-L1b-FLDK/2019/09/14/0300/HS_H08_20190914_0300_B03_FLDK_R10_S0101.DAT.bz2	D:\upwind_raw\noaa-himawari8\asap_2019-09-14\HS_H08_20190914_0300_B03_FLDK_R10_S0101.DAT.bz2
+https://noaa-himawari8.s3.amazonaws.com/AHI-L1b-FLDK/2019/09/14/0300/HS_H08_20190914_0300_B07_FLDK_R20_S0101.DAT.bz2	D:\upwind_raw\noaa-himawari8\asap_2019-09-14\HS_H08_20190914_0300_B07_FLDK_R20_S0101.DAT.bz2
+https://noaa-himawari8.s3.amazonaws.com/AHI-L1b-FLDK/2019/09/14/0300/HS_H08_20190914_0300_B13_FLDK_R20_S0101.DAT.bz2	D:\upwind_raw\noaa-himawari8\asap_2019-09-14\HS_H08_20190914_0300_B13_FLDK_R20_S0101.DAT.bz2
