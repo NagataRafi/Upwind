@@ -207,17 +207,27 @@ def render_kasus(label, folder):
     grid13 = buat_grid(bands[13][0], px13 := buat_px(bands[13][0]), (0, bands[13][1].shape[0] - 1, 0, bands[13][1].shape[1] - 1, True))
     panels = []
     gambar_tc = None
+    # komposit warna: samakan grid dulu (B03 2026 = grid 2x lebih halus daripada B01/B02),
+    # lalu satu peregangan bersama utk ketiga kanal (bukan peregangan per band)
     if 3 in tables and 1 in tables and 2 in tables:
-        Rr = tables[3]
-        Gg = tables[2]
-        Bbv = tables[1]
-        hl = min(Rr.shape[0], Gg.shape[0], Bbv.shape[0]); hc = min(Rr.shape[1], Gg.shape[1], Bbv.shape[1])
-        arr_tc = (np.dstack([Rr[:hl, :hc], Gg[:hl, :hc], Bbv[:hl, :hc]]) * 255).astype(np.uint8)
-        gambar_tc = ("True color sederhana: B03 merah / B02 hijau / B01 biru", arr_tc)
+        th = max(bands[b][1].shape[0] for b in (1, 2, 3))
+        tc = max(bands[b][1].shape[1] for b in (1, 2, 3))
+        def ke_grid(arr):
+            if arr.shape == (th, tc):
+                return arr
+            return np.asarray(Image.fromarray(arr).resize((tc, th), Image.BILINEAR))
+        ch1 = np.asarray(ke_grid(bands[1][1]), dtype=np.float64)
+        ch2 = np.asarray(ke_grid(bands[2][1]), dtype=np.float64)
+        ch3 = np.asarray(ke_grid(bands[3][1]), dtype=np.float64)
+        semua = np.concatenate([ch1.ravel(), ch2.ravel(), ch3.ravel()])
+        lo, hi = np.nanpercentile(semua, 2), np.nanpercentile(semua, 98)
+        arr_tc = np.clip((np.dstack([ch3, ch2, ch1]) - lo) / (hi - lo), 0, 1)
+        arr_tc = (arr_tc * 255).astype(np.uint8)
+        gambar_tc = ("True color: B03 merah / B02 hijau / B01 biru, satu peregangan bersama", arr_tc)
         panels.append(gambar_tc)
-        panels.append(("B03 0.64u peregangan 2-98%", (tables[3] * 255).astype(np.uint8)))
+        panels.append(("B03 0.64u peregangan 2-98%", (selip(bands[3][1]) * 255)))
     elif 3 in tables:
-        panels.append(("B03 0.64u peregangan 2-98% (tanpa B01/B02: tanpa warna asli)", (tables[3] * 255).astype(np.uint8)))
+        panels.append(("B03 0.64u peregangan 2-98% (tanpa B01/B02: tanpa warna asli)", (selip(bands[3][1]) * 255)))
     panels.append(("B13 10.8u TB (skala 250-320 K, makin terang = makin hangat)", (ta13 * 255).astype(np.uint8)))
     panels.append(("B13 TB + merah: TB7-TB13 > 0 = pintu api", (ir13_active * 255).astype(np.uint8)))
     panels.append(("B07 3.9u TB (skala 260-360 K)", (ta07 * 255).astype(np.uint8)))
