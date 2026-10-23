@@ -180,17 +180,12 @@ def render_kasus(label, folder):
             tables[band] = selip(pl)
     tb7 = tb_ir(bands[7][0], bands[7][1])
     tile = 440
-    # kembalikan masker api pada grid B13 via resize kasar dari B07
-    def ke_iktil(arr_uint8, tw, th):
-        return np.asarray(Image.fromarray(arr_uint8).resize((tw, th), Image.BILINEAR))
-    th_ref, tw_ref = tb13.shape
-    fmask = np.clip((tb7 - tb13 - 40.0) / 60.0, 0, 1)  # siang: surya memberi +15 K; pintu api dgn TB7-TB13 >= 40 K
+    # LAYER API DIHAPUS (TEMUAN): Tb7-Tb13 siang hari tercemar pantulan surya (CIMSS/Literatur);
+    # titik panas nanti memakai produk AHI-L2WLF JAXA (registrasi P-Tree diperlukan).
     ta13 = np.clip((tb13 - 250) / 70.0, 0, 1)
+    # topeng awan dingin B13 (pemisah awan tinggi dari asap)
+    topeng_awand = (tb13 < 265).astype(np.uint8) * 255
     ta07 = np.clip((tb7 - 240) / 120.0, 0, 1)
-    ir13_active = np.dstack([
-        np.clip(ta13 + .95 * fmask, 0, 1),
-        ta13 * np.clip(1 - .7 * fmask, 0, 1),
-        ta13 * np.clip(1 - .7 * fmask, 0, 1)])
     W = 950
     nrows = (len(panels_poss := None) or 3) if False else 3
     Himg = 64 + nrows * (tile + 24)
@@ -229,8 +224,8 @@ def render_kasus(label, folder):
     elif 3 in tables:
         panels.append(("B03 0.64u peregangan 2-98% (tanpa B01/B02: tanpa warna asli)", (selip(bands[3][1]) * 255)))
     panels.append(("B13 10.8u TB (skala 250-320 K, makin terang = makin hangat)", (ta13 * 255).astype(np.uint8)))
-    panels.append(("B13 TB + merah: TB7-TB13 > 0 = pintu api", (ir13_active * 255).astype(np.uint8)))
-    panels.append(("B07 3.9u TB (skala 260-360 K)", (ta07 * 255).astype(np.uint8)))
+    panels.append(("topeng awan dingin: TB13 < 265 K (deteksi B13)", topeng_awand))
+    panels.append(("B07 3.9u TB (skala 240-360 K, SIANG: tercemar surya!)", (ta07 * 255).astype(np.uint8)))
     if 4 in tables:
         panels.append(("B04 0.86u peregangan 2-98%", (tables[4] * 255).astype(np.uint8)))
     yy = 54
@@ -264,6 +259,35 @@ def render_kasus(label, folder):
     im.save(nama)
     print("  ->", nama)
     return nama
+
+def inv_px(info, la, lo):
+    """lat/lon (geodetik) -> indeks (line, col) — kebalikan buat_px"""
+    a = info["a"] * 1000.0
+    e2 = 1.0 - (info["b"] * 1000.0 / a) ** 2
+    gct = math.atan((1.0 - e2) * math.tan(math.radians(la)))  # geosentrik (aproks)
+    dl = math.radians(lo - info["proj_sub_lon"])
+    P = np.array([a * math.cos(gct) * math.sin(dl), a * math.sin(gct), a * math.cos(gct) * math.cos(dl)])
+    S = np.array([0.0, 0.0, info["dist_center"] * 1000.0])
+    d = P - S
+    nrm = float(np.linalg.norm(d))
+    ang = math.degrees(math.atan2(float(d[0]), float(-d[2])))
+    bb = math.degrees(math.asin(max(-1.0, min(1.0, float(d[1]) / nrm))))
+    dpp = 65536.0 / info["cfac"]
+    col = ang / dpp + info["coff"] - 1.0
+    line = info["loff"] - 1.0 - (float(info.get("line0", 0) or 0)) - bb / dpp
+    return line, col
+
+def potong_lalo(info, plane, ltu, lsl, loB, loT):
+    """Potong plane ke kotak lat/lon; kembalikan (box, sub). box=(l0,l1,c0,c1)."""
+    la, ca = inv_px(info, ltu, loB)
+    lb, cb = inv_px(info, lsl, loT)
+    l0, l1 = sorted((int(la), int(lb)))
+    c0, c1 = sorted((int(ca), int(cb)))
+    l0, l1 = max(0, l0), min(info["lines"] - 1, l1)
+    c0, c1 = max(0, c0), min(info["cols"] - 1, c1)
+    if l1 - l0 < 2 or c1 - c0 < 2:
+        raise ValueError("kotak di luar bidang")
+    return (l0, l1, c0, c1), plane[l0:l1 + 1, c0:c1 + 1].copy()
 
 CASES = [
     ("asap_2019-09-05", "noaa-himawari8", "asap_2019-09-05"),
