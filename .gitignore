@@ -32,3 +32,6 @@ checkpoint*/
 
 # Hasil build Python
 __pycache__/
+
+# Codebase Memory MCP database dan artifacts lokal
+.codebase-memory/

@@ -9,6 +9,8 @@ Keputusan penting diberi awalan `KEPUTUSAN:`. Jam diambil dari jam sistem.
 
 ## Entri
 
+2026-10-24 09:32 WIB (02:32 UTC) | Koordinator | Pra-P2 | Cabut pelacakan .codebase-memory/ dari git dan tambahkan ke .gitignore serta .cbmignore; verifikasi eksklusi node_modules, dist, dan data/raw pada indeks (sebelum: 3347 node, sesudah: 3405 node) | .gitignore, .cbmignore, Changelog.md | Penilaian visual kelayakan asap oleh pengguna (FR-M1)
+
 2026-10-24 09:27 WIB (02:27 UTC) | Koordinator | Pra-P2 | Pemasangan alat bantu: perbaikan & instalasi skill ponytail (.agents & plugin Gemini/OpenCode), ringkasan operasional docs/RINGKAS_AGEN.md, dan integrasi codebase-memory-mcp resmi v0.12.1 (DeusData) setelah telaah install.ps1; proyek terindeks (3347 node, 3673 edge) dan uji get_architecture sukses; token konteks tidak terukur dari antarmuka | docs/RINGKAS_AGEN.md, Changelog.md, .agents/, .codebase-memory/ | Penilaian visual kelayakan asap oleh pengguna (FR-M1)
 
 2026-10-24 09:05 WIB (02:05 UTC) | Koordinator | P2 | Pemulihan sesi: rekonstruksi status repo C: dan Drive, audit 5 butir FM-1 (komposit disejajarkan, aturan api dihapus, potong kotak Riau/Kalteng selesai, kontrol bersih B01-B03 lengkap di-render dan di-commit); citra siap dinilai pengguna | docs/fm1/fm1_bersih_2019-10-15.png, docs/fm1/fm1_bersih_2019-10-15_kalteng.png, docs/fm1/fm1_bersih_2019-10-15_riau.png, Changelog.md | Penilaian visual kelayakan asap oleh pengguna (dibandingkan NASA Worldview)

@@ -1,0 +1,7 @@
+# Codebase Memory ignore
+node_modules/
+dist/
+data/raw/
+data/mentah/
+.git/
+.codebase-memory/
