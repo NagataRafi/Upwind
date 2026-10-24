@@ -1,0 +1,11 @@
+{
+    "schema_version": 2,
+    "commit": "0ca99fbb33796ef6adf85df2bebbaa977203f4db",
+    "indexed_at": "2026-10-24T02:25:36Z",
+    "project": "C-Users-ADMIN-upwind_proj",
+    "nodes": 3347,
+    "edges": 3673,
+    "original_size": 23527424,
+    "compressed_size": 571382,
+    "compression_level": 9
+}
