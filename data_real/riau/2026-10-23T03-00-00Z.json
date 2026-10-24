@@ -1,7 +1,7 @@
 {
   "frame": {
     "timestamp_utc": "2026-10-23T03:00:00Z",
-    "processed_utc": "2026-10-24T02:38:30Z",
+    "processed_utc": "2026-10-24T03:12:43Z",
     "region_id": "riau",
     "bbox": [
       100.0,
@@ -9,22 +9,17 @@
       104.0,
       2.5
     ],
-    "mask_overlay": "/overlays/riau/2026-10-23T03-00-00Z/smoke_mask.png",
-    "probability_overlay": "/overlays/riau/2026-10-23T03-00-00Z/smoke_prob.png",
-    "uncertainty_overlay": "/overlays/riau/2026-10-23T03-00-00Z/smoke_unc.png",
-    "area_km2": 0.0,
+    "mask_overlay": null,
+    "probability_overlay": null,
+    "uncertainty_overlay": null,
+    "area_km2": null,
     "cloud_cover_fraction": 0.159,
-    "motion": {
-      "direction_deg": null,
-      "speed_kmh": null,
-      "quality": "unavailable",
-      "status_text": "tidak dapat dihitung (frame tunggal, model P3 belum tersambung)"
-    },
+    "motion": null,
     "source_frames": [
       "2026-10-23T03:00:00Z"
     ],
     "daylight": true,
-    "model_version": "pipeline_pcd_v0.1_premodel",
+    "model_version": "pcd_p2_premodel",
     "code_version": "git-p2",
     "is_mock": false
   },

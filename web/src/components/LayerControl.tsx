@@ -177,7 +177,7 @@ export const LayerControl: React.FC<LayerControlProps> = ({
                   onChange={(e) => update({ wind: e.target.checked })}
                   className="rounded text-sky-400 focus:ring-0 bg-slate-800 border-slate-700"
                 />
-                <span>Panah Angin (ERA5 10m)</span>
+                <span>Panah Angin (Prakiraan Model 10m)</span>
               </span>
               <span className="text-[10px] text-slate-400 font-mono">m/s</span>
             </label>

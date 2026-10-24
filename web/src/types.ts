@@ -17,11 +17,11 @@ export interface SmokeFrame {
   processed_utc: string;
   region_id: RegionId;
   bbox: [number, number, number, number]; // [min_lon, min_lat, max_lon, max_lat]
-  mask_overlay: string;
-  probability_overlay: string;
-  uncertainty_overlay: string;
-  area_km2: number;
-  motion: MotionData;
+  mask_overlay: string | null;
+  probability_overlay: string | null;
+  uncertainty_overlay: string | null;
+  area_km2: number | null;
+  motion: MotionData | null;
   source_frames: string[];
   daylight: boolean;
   cloud_cover_fraction: number;

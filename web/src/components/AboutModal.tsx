@@ -89,7 +89,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
                 <span className="font-semibold text-white block">Vektor Angin Permukaan</span>
-                <span className="text-slate-400">ECMWF ERA5-Land Reanalysis (10m)</span>
+                <span className="text-slate-400">Prakiraan Model Open-Meteo (CC BY 4.0, non-komersial) & ECMWF ERA5-Land Reanalysis (hindcast)</span>
               </div>
               <div className="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50">
                 <span className="font-semibold text-white block">Peta Dasar</span>

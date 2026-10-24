@@ -18,6 +18,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import DATA_ROOT
 from hsd_header import parse_header_full
 from olah_himawari_fm1 import tb_ir, selip, inv_px, potong_lalo
 
@@ -36,11 +37,13 @@ REGIONS = {
 
 AMBANG_AWAN_DINGIN_K = 265.0  # Kelvin (TB13 < 265 K = awan tinggi/dingin)
 
-def unduh_h9_segmen(dt_utc, band_list=(1, 2, 3, 4, 7, 13), seg_list=(5, 6), raw_dir=r"D:\upwind_raw"):
+def unduh_h9_segmen(dt_utc, band_list=(1, 2, 3, 4, 7, 13), seg_list=(5, 6), raw_dir=None):
     """
     Komponen A: Mengunduh segmen Himawari-9 yang dibutuhkan dari AWS Open Data S3.
     Hanya mengunduh segmen wilayah Sumatra/Kalimantan (S05 dan S06).
     """
+    if raw_dir is None:
+        raw_dir = DATA_ROOT
     bkt = "noaa-himawari9"
     yyyy = dt_utc.strftime("%Y")
     mm = dt_utc.strftime("%m")
@@ -185,39 +188,21 @@ def proses_frame_terkini(folder_h9, out_dir="data", timestamp_str="2026-10-23T03
         # Resolusi piksel B13 pada SSP adalah ~2 km (kira-kira 4 km2 per piksel di ekuator)
         luas_awan_km2 = round(awan_piksel * 4.0, 1)
         
-        # Direktori overlay
-        dir_overlay = os.path.join(out_dir, "overlays", reg_id, ts_safe)
-        os.makedirs(dir_overlay, exist_ok=True)
-        
-        # Buat overlay mask awan dingin (cyan semi-transparan)
-        img_mask = buat_png_transparan(mask_awan_dingin, warna_rgba=(100, 180, 240, 160))
-        img_mask.save(os.path.join(dir_overlay, "smoke_mask.png"))
-        
-        # Overlay probabilitas dan ketidakpastian (transparan penuh, karena model AI P3 belum ada)
-        img_kosong = Image.new("RGBA", img_mask.size, (0, 0, 0, 0))
-        img_kosong.save(os.path.join(dir_overlay, "smoke_prob.png"))
-        img_kosong.save(os.path.join(dir_overlay, "smoke_unc.png"))
-        
-        # Objek SmokeFrame
+        # Objek SmokeFrame (Jujur: model inferensi belum ada di fase P2 data mentah)
         smoke_frame = {
             "timestamp_utc": timestamp_str,
             "processed_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "region_id": reg_id,
             "bbox": bbox,
-            "mask_overlay": f"/overlays/{reg_id}/{ts_safe}/smoke_mask.png",
-            "probability_overlay": f"/overlays/{reg_id}/{ts_safe}/smoke_prob.png",
-            "uncertainty_overlay": f"/overlays/{reg_id}/{ts_safe}/smoke_unc.png",
-            "area_km2": 0.0,  # Asap model belum ada di P2
+            "mask_overlay": None,         # Belum ada model inferensi asap
+            "probability_overlay": None,  # Belum ada model inferensi asap
+            "uncertainty_overlay": None,  # Belum ada model inferensi asap
+            "area_km2": None,             # Belum dapat dihitung tanpa model asap
             "cloud_cover_fraction": cloud_cover_fraction,
-            "motion": {
-                "direction_deg": None,
-                "speed_kmh": None,
-                "quality": "unavailable",
-                "status_text": "tidak dapat dihitung (frame tunggal, model P3 belum tersambung)"
-            },
+            "motion": None,               # Belum ada urutan frame berturut-turut
             "source_frames": [timestamp_str],
             "daylight": is_daylight,
-            "model_version": "pipeline_pcd_v0.1_premodel",
+            "model_version": "pcd_p2_premodel",
             "code_version": "git-p2",
             "is_mock": False
         }
@@ -242,7 +227,7 @@ def proses_frame_terkini(folder_h9, out_dir="data", timestamp_str="2026-10-23T03
             "timestamp_safe": ts_safe,
             "daylight": is_daylight,
             "cloud_cover_fraction": cloud_cover_fraction,
-            "area_km2": 0.0,
+            "area_km2": None,
             "has_smoke": False,
             "motion_quality": "unavailable",
             "scenario_type": "real_himawari9"
@@ -256,7 +241,7 @@ def proses_frame_terkini(folder_h9, out_dir="data", timestamp_str="2026-10-23T03
             "latest_timestamp_safe": ts_safe,
             "daylight": is_daylight,
             "cloud_cover_fraction": cloud_cover_fraction,
-            "smoke_area_km2": 0.0,
+            "smoke_area_km2": None,
             "hotspot_count": 0
         }
         
@@ -284,6 +269,6 @@ def proses_frame_terkini(folder_h9, out_dir="data", timestamp_str="2026-10-23T03
     return status_sistem
 
 if __name__ == "__main__":
-    folder_raw = r"D:\upwind_raw\noaa-himawari9\terkini_2026-10-23"
+    folder_raw = os.path.join(DATA_ROOT, "noaa-himawari9", "terkini_2026-10-23")
     out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data_real")
     proses_frame_terkini(folder_raw, out_dir=out)

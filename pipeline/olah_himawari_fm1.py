@@ -7,7 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hsd_header import parse_header_full
 
-RAW = r"D:\upwind_raw"
+from config import DATA_ROOT
+RAW = DATA_ROOT
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "fm1")
 os.makedirs(OUT, exist_ok=True)
 

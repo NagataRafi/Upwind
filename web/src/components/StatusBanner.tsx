@@ -16,12 +16,20 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status, currentFrame
   const isDataStale =
     (status?.data_age_minutes ?? 0) > (DATA_STALE_THRESHOLD_MINUTES ?? 60);
   // Sinkron dengan STALE_THRESHOLD_MINUTES di mock/generate_mock_data.py
-  const motionUncomputable = currentFrame.motion.quality === 'unavailable';
+  const motionUncomputable = currentFrame.motion?.quality === 'unavailable';
 
   return (
     <div className="flex flex-col gap-1 px-3 py-1.5 bg-slate-800/95 text-slate-200 border-b border-slate-700 text-xs">
       {/* Peringatan Khusus Kasus Sulit (FR-W12, FR-W7, FR-W11) */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* Penanda Model Asap Belum Tersedia */}
+        {currentFrame.area_km2 === null && (
+          <div className="flex items-center gap-1.5 bg-amber-950/80 border border-amber-500/40 text-amber-200 px-2.5 py-1 rounded-md font-medium">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+            <span>Model asap belum tersedia (fase P2 pengolahan citra)</span>
+          </div>
+        )}
+
         {/* FR-W12: Penanda Malam Hari */}
         {isNight && (
           <div className="flex items-center gap-1.5 bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 px-2.5 py-1 rounded-md font-medium">
@@ -41,7 +49,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status, currentFrame
         )}
 
         {/* FR-W7: Gerak Asap Tidak Dapat Dihitung */}
-        {motionUncomputable && currentFrame.area_km2 > 0 && !isNight && (
+        {motionUncomputable && (currentFrame.area_km2 ?? 0) > 0 && !isNight && (
           <div className="flex items-center gap-1.5 bg-amber-950/80 border border-amber-500/40 text-amber-200 px-2.5 py-1 rounded-md font-medium">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
             <span>Arah gerak asap: <strong>tidak dapat dihitung</strong> (frame urutan tidak mencukupi)</span>

@@ -17,7 +17,7 @@ export const FooterBar: React.FC<FooterBarProps> = ({ status, onOpenAbout }) => 
   const isMock = status?.is_mock ?? true;
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-3 py-1 bg-slate-800/95 border-t border-slate-700 text-[10px] text-slate-400">
-      <span>Sumber direncanakan (data asli, belum tersambung): Himawari-9 JMA/NOAA - FIRMS NASA - ERA5-Land ECMWF</span>
+      <span>Sumber direncanakan (data asli): Himawari-9 JMA/NOAA - FIRMS NASA - Angin Prakiraan Model Open-Meteo (CC BY 4.0) / ERA5-Land ECMWF</span>
       {isMock && (
         <span className="text-orange-400 font-semibold">
           Saat ini: data contoh, bukan data asli

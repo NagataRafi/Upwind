@@ -13,7 +13,9 @@ Jam: 03:00 UTC (10:00 WIB).
 """
 import os, sys, re, time, urllib.request, urllib.parse
 
-RAW = r"D:\upwind_raw"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import DATA_ROOT
+RAW = DATA_ROOT
 
 def s3list(bkt, pfx, delim="/"):
     u = "https://%s.s3.amazonaws.com/?list-type=2&prefix=%s&max-keys=300" % (bkt, urllib.parse.quote(pfx))

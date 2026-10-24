@@ -98,7 +98,7 @@ export const MapView: React.FC<MapViewProps> = ({
       map.removeLayer(maskLayerRef.current);
       maskLayerRef.current = null;
     }
-    if (layers.smokeMask && frame.daylight && frame.area_km2 > 0) {
+    if (layers.smokeMask && frame.daylight && (frame.area_km2 ?? 0) > 0 && frame.mask_overlay) {
       maskLayerRef.current = L.imageOverlay(frame.mask_overlay, bounds, {
         opacity: layers.smokeMaskOpacity,
         interactive: false
@@ -110,7 +110,7 @@ export const MapView: React.FC<MapViewProps> = ({
       map.removeLayer(probLayerRef.current);
       probLayerRef.current = null;
     }
-    if (layers.smokeProb && frame.daylight && frame.area_km2 > 0) {
+    if (layers.smokeProb && frame.daylight && (frame.area_km2 ?? 0) > 0 && frame.probability_overlay) {
       probLayerRef.current = L.imageOverlay(frame.probability_overlay, bounds, {
         opacity: layers.smokeProbOpacity,
         interactive: false
@@ -122,7 +122,7 @@ export const MapView: React.FC<MapViewProps> = ({
       map.removeLayer(uncLayerRef.current);
       uncLayerRef.current = null;
     }
-    if (layers.smokeUnc && frame.daylight && frame.area_km2 > 0) {
+    if (layers.smokeUnc && frame.daylight && (frame.area_km2 ?? 0) > 0 && frame.uncertainty_overlay) {
       uncLayerRef.current = L.imageOverlay(frame.uncertainty_overlay, bounds, {
         opacity: layers.smokeUncOpacity,
         interactive: false
@@ -211,7 +211,7 @@ export const MapView: React.FC<MapViewProps> = ({
     if (motionArrowGroupRef.current) {
       motionArrowGroupRef.current.clearLayers();
 
-      if (layers.motionArrow && frame.daylight && frame.area_km2 > 0) {
+      if (layers.motionArrow && frame.daylight && (frame.area_km2 ?? 0) > 0 && frame.motion) {
         // Pusat perkiraan gumpalan asap
         const smokeCenterLat = regionId === 'riau' ? 1.35 : -2.2;
         const smokeCenterLon = regionId === 'riau' ? 101.8 : 113.9;

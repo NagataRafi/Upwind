@@ -17,10 +17,16 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ frame, hotspots }) =
         <div>
           <span className="text-[11px] text-slate-400 font-medium block">Luas Asap</span>
           <div className="flex items-baseline gap-1 mt-0.5">
-            <span className="text-base sm:text-lg font-bold text-white">
-              {frame.daylight ? frame.area_km2.toLocaleString('id-ID') : '0'}
-            </span>
-            <span className="text-[10px] text-slate-400">km²</span>
+            {frame.area_km2 === null ? (
+              <span className="text-xs font-semibold text-amber-300">Model asap belum tersedia</span>
+            ) : (
+              <>
+                <span className="text-base sm:text-lg font-bold text-white">
+                  {frame.daylight ? frame.area_km2.toLocaleString('id-ID') : '0'}
+                </span>
+                <span className="text-[10px] text-slate-400">km²</span>
+              </>
+            )}
           </div>
         </div>
         <div className="p-2 rounded-md bg-slate-700/50 text-slate-300">
@@ -47,8 +53,10 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ frame, hotspots }) =
         <div className="min-w-0">
           <span className="text-[11px] text-slate-400 font-medium block">Arah Gerak Asap</span>
           <div className="mt-0.5 truncate">
-            {frame.motion.quality === 'unavailable' ? (
-              <span className="text-xs font-semibold text-amber-300">Tidak dapat dihitung</span>
+            {!frame.motion || frame.motion.quality === 'unavailable' ? (
+              <span className="text-xs font-semibold text-amber-300">
+                {!frame.motion ? 'Model asap belum tersedia' : 'Tidak dapat dihitung'}
+              </span>
             ) : (
               <span className="text-xs sm:text-sm font-bold text-emerald-400 truncate block">
                 {frame.motion.status_text}

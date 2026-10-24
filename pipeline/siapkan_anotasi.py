@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kotak_fm1 import render_kotak, KOTAKS
+from config import DATA_ROOT
 
 def siapkan_template_geojson(output_path, region_id, label_kasus):
     """Membuat template berkas GeoJSON kosong dengan struktur atribut standar."""
@@ -53,6 +54,6 @@ def siapkan_bahan_anotasi(label_kasus, folder_raw, out_dir=DEFAULT_OUT):
     print(f"Bahan anotasi untuk {label_kasus} siap di {out_dir}")
 
 if __name__ == "__main__":
-    folder_uji = r"D:\upwind_raw\noaa-himawari8\asap_2019-09-14"
+    folder_uji = os.path.join(DATA_ROOT, "noaa-himawari8", "asap_2019-09-14")
     if os.path.isdir(folder_uji):
         siapkan_bahan_anotasi("asap_2019-09-14", folder_uji)
