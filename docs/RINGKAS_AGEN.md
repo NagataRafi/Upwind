@@ -45,7 +45,7 @@ Berhenti dan tanyakan opsi kepada pengguna bila:
 | :--- | :---: | :--- |
 | **P0 (Fondasi)** | **Selesai** | Kontrak data, pemilihan stack, arsitektur 3 lapis disetujui. |
 | **P1 (Web Mock)** | **Selesai** | Dasbor responsif dengan data tiruan terverifikasi Playwright (`is_mock: true`). |
-| **P2 (Pipeline Data Asli)** | **Aktif / Tertahan Evaluasi** | Unduhan & dekode raw HSD Himawari-8/9 mandiri, penyejajaran grid komposit, topeng awan dingin B13, dan pemotongan kotak Riau/Kalteng selesai. **Tertahan**: menunggu penilaian visual kelayakan asap (FR-M1) oleh pengguna against NASA Worldview. Titik panas AHI-L2WLF 2019 menunggu akun JAXA P-Tree / FIRMS MAP_KEY. |
+| **P2 (Pipeline Data Asli)** | **Aktif / FM-1 Lolos** | FM-1 lolos (skor 8/10 penilaian pengguna, asap terlihat siang hari). Pipeline Komponen A & B Himawari-9 terkini selesai (`is_mock: false`, topeng awan dingin B13, daylight). Kandidat angin near-real-time dan SmokeViz terverifikasi. Menunggu keputusan pengguna atas anggaran unduhan adegan dan persetujuan masuk P3. |
 | **P3–P6** | **Belum Dimulai** | Menunggu syarat keluar P2 terpenuhi. |
 
 ---

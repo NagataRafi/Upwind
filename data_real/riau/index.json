@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp_utc": "2026-10-23T03:00:00Z",
+    "timestamp_safe": "2026-10-23T03-00-00Z",
+    "daylight": true,
+    "cloud_cover_fraction": 0.159,
+    "area_km2": 0.0,
+    "has_smoke": false,
+    "motion_quality": "unavailable",
+    "scenario_type": "real_himawari9"
+  }
+]

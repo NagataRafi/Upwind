@@ -9,6 +9,8 @@ Keputusan penting diberi awalan `KEPUTUSAN:`. Jam diambil dari jam sistem.
 
 ## Entri
 
+2026-10-24 09:45 WIB (02:45 UTC) | Koordinator / Data dan citra | P2 | KEPUTUSAN: FM-1 lolos (penilaian pengguna skor 8/10, asap terlihat siang hari, belum metrik model); pipeline Komponen A & B Himawari-9 terkini jadi (is_mock=false, awan dingin B13, daylight); verifikasi angin near-real-time (Open-Meteo vs GFS, ERA5-Land hindcast); FIRMS dilewati (kunci belum ada di .env); protokol anotasi docs/PROTOKOL_ANOTASI.md & alat bantu siapkan_anotasi.py; verifikasi SmokeViz (sensor GOES ABI, wilayah Amerika Utara/CONUS) | pipeline/pipeline_h9.py, pipeline/siapkan_anotasi.py, docs/PROTOKOL_ANOTASI.md, data_real/, Changelog.md | Keputusan pengguna atas anggaran unduhan adegan P2 & persetujuan masuk P3
+
 2026-10-24 09:32 WIB (02:32 UTC) | Koordinator | Pra-P2 | Cabut pelacakan .codebase-memory/ dari git dan tambahkan ke .gitignore serta .cbmignore; verifikasi eksklusi node_modules, dist, dan data/raw pada indeks (sebelum: 3347 node, sesudah: 3405 node) | .gitignore, .cbmignore, Changelog.md | Penilaian visual kelayakan asap oleh pengguna (FR-M1)
 
 2026-10-24 09:27 WIB (02:27 UTC) | Koordinator | Pra-P2 | Pemasangan alat bantu: perbaikan & instalasi skill ponytail (.agents & plugin Gemini/OpenCode), ringkasan operasional docs/RINGKAS_AGEN.md, dan integrasi codebase-memory-mcp resmi v0.12.1 (DeusData) setelah telaah install.ps1; proyek terindeks (3347 node, 3673 edge) dan uji get_architecture sukses; token konteks tidak terukur dari antarmuka | docs/RINGKAS_AGEN.md, Changelog.md, .agents/, .codebase-memory/ | Penilaian visual kelayakan asap oleh pengguna (FR-M1)
