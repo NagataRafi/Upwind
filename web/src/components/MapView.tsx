@@ -153,7 +153,7 @@ export const MapView: React.FC<MapViewProps> = ({
               </div>
               <div><strong>Waktu:</strong> ${formatToWIB(hp.time_utc)}</div>
               <div><strong>Sumber:</strong> ${hp.source}</div>
-              <div><strong>Kepercayaan:</strong> ${hp.confidence}%</div>
+              <div><strong>Kepercayaan:</strong> ${typeof hp.confidence === 'number' ? hp.confidence + '%' : hp.confidence}</div>
               <div><strong>FRP (Daya):</strong> ${hp.frp} MW</div>
               <div><strong>Lahan Gambut:</strong> <span style="color: ${hp.is_peat ? '#b91c1c' : '#047857'}; font-weight: 600;">${hp.is_peat ? 'Ya (Kubah Gambut)' : 'Tidak (Mineral)'}</span></div>
             </div>

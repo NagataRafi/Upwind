@@ -60,15 +60,22 @@ def unduh_hotspot_firms(region_id, date_str, source=None, days=1, out_dir=None):
         acq_time = r.get("acq_time", "0000").zfill(4)
         hh, mm = acq_time[:2], acq_time[2:]
         time_utc = f"{acq_date}T{hh}:{mm}:00Z"
-        sat = r.get("satellite", "SNPP")
+        # Normalisasi nama satelit ('N' = Suomi-NPP di VIIRS NRT)
+        sat_code = r.get("satellite", "SNPP")
+        sat_name = "SNPP" if sat_code in ("N", "SNPP") else sat_code
+        
+        # Normalisasi confidence (VIIRS NRT: 'l', 'n', 'h')
+        raw_conf = r.get("confidence", "nominal")
+        conf_map = {"l": "low", "n": "nominal", "h": "high"}
+        conf = conf_map.get(raw_conf.lower(), raw_conf)
         
         hp = {
-            "id": f"hp_{region_id}_{sat}_{acq_date.replace('-', '')}_{acq_time}_{idx:04d}",
+            "id": f"hp_{region_id}_{sat_name}_{acq_date.replace('-', '')}_{acq_time}_{idx:04d}",
             "time_utc": time_utc,
             "lat": round(float(r["latitude"]), 5),
             "lon": round(float(r["longitude"]), 5),
             "source": f"NASA_FIRMS_{source}",
-            "confidence": r.get("confidence", "nominal"),
+            "confidence": conf,
             "frp": float(r.get("frp", 0.0) or 0.0),
             "is_peat": False,
             "is_mock": False

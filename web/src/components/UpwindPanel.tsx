@@ -155,7 +155,7 @@ export const UpwindPanel: React.FC<UpwindPanelProps> = ({
                   <div>
                     Kepercayaan:{' '}
                     <strong className="text-slate-200">
-                      {hp ? `${hp.confidence}%` : '—'}
+                      {hp ? (typeof hp.confidence === 'number' ? `${hp.confidence}%` : hp.confidence) : '—'}
                     </strong>
                   </div>
                 </div>
