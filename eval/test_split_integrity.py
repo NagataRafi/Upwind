@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 """
 Uji Integritas Aturan Pembagian Dataset (Train/Test Split Integrity Test).
-Sesuai aturan PRD P3a:
+Sesuai aturan PRD P3a dan pedoman verifikasi Upwind:
 - Pembagian data HARUS per HARI (kalender), bukan per adegan atau per potongan.
 - Semua adegan pada tanggal yang sama wajib berada di sisi yang sama (mencegah data leakage).
 - Uji ini harus GAGAL bila ada tanggal yang muncul di kedua sisi.
+- Menyediakan mode pembagian Leave-One-Day-Out (LODO) lintas tanggal unik.
+- CATATAN: Pembagian set latih/uji pilot BELUM DIKUNCI karena hari 'bersih' 15 Okt 2019
+  dan 'awan' 15 Jan 2019 masih asumsi sampai diverifikasi di Worldview, serta status
+  asap 23 Okt 2026 belum diketahui secara pasti di lapangan.
 """
 
 import sys
+import re
+from collections import defaultdict
 
 def ekstrak_tanggal_dari_adegan(scene_id_or_date):
     """Mengekstrak string tanggal 'YYYY-MM-DD' dari scene_id atau objek patch."""
-    import re
     m = re.search(r"(\d{4}[-/]\d{2}[-/]\d{2})", str(scene_id_or_date))
     if not m:
         raise ValueError(f"Tidak dapat mengekstrak tanggal dari: {scene_id_or_date}")
@@ -36,10 +41,33 @@ def verifikasi_integritas_split(train_items, test_items):
         
     return train_dates, test_dates
 
+def buat_split_leave_one_day_out(items):
+    """
+    Menghasilkan pembagian Leave-One-Day-Out (LODO) lintas tanggal unik.
+    Setiap fold menggunakan 1 hari kalender sebagai set uji (test) dan sisa hari
+    sebagai set latih (train).
+    Setiap fold diverifikasi langsung dengan verifikasi_integritas_split.
+    Mengembalikan list of tuple: (fold_idx, test_date, train_items, test_items).
+    """
+    per_hari = defaultdict(list)
+    for it in items:
+        tgl = ekstrak_tanggal_dari_adegan(it)
+        per_hari[tgl].append(it)
+        
+    daftar_hari = sorted(per_hari.keys())
+    folds = []
+    for fold_idx, tgl_uji in enumerate(daftar_hari):
+        test_items = per_hari[tgl_uji]
+        train_items = [it for tgl, its in per_hari.items() if tgl != tgl_uji for it in its]
+        # Verifikasi integritas setiap fold secara ketat
+        verifikasi_integritas_split(train_items, test_items)
+        folds.append((fold_idx, tgl_uji, train_items, test_items))
+    return folds
+
 def test_split_rule():
     print("Menjalankan uji integritas aturan pembagian dataset (per hari)...")
     
-    # 1. Kasus Valid (Split per Hari Murni)
+    # 1. Kasus Valid (Split per Hari Murni) - USULAN AWAL (Bukan Kunci Permanen)
     train_valid = [
         "asap_2019-09-12",
         "asap_2019-09-14",
@@ -53,7 +81,7 @@ def test_split_rule():
         "terkini_2026-10-23"
     ]
     tr_d, te_d = verifikasi_integritas_split(train_valid, test_valid)
-    print(f"  [OK] Kasus valid lolos: Train={sorted(tr_d)}, Test={sorted(te_d)}")
+    print(f"  [OK] Kasus usulan valid lolos: Train={sorted(tr_d)}, Test={sorted(te_d)}")
     
     # 2. Kasus Bocor (Leakage: tanggal 2019-09-14 terbelah di kedua sisi)
     train_leaky = [
@@ -71,7 +99,23 @@ def test_split_rule():
     except AssertionError as e:
         print(f"  [OK] Uji deteksi kebocoran berhasil mendeteksi pelanggaran: {e}")
         
-    print("\nSEMUA UJI ATURAN PEMBAGIAN LOLOS DENGAN BENAR.")
+    # 3. Uji Mode Leave-One-Day-Out (LODO)
+    semua_adegan = [
+        "asap_2019-09-05",
+        "asap_2019-09-12",
+        "asap_2019-09-14",
+        "asap_2019-09-14_0400",
+        "asap_2019-09-14_0600",
+        "bersih_2019-10-15",
+        "awan_2019-01-15",
+        "terkini_2026-10-23"
+    ]
+    folds = buat_split_leave_one_day_out(semua_adegan)
+    print(f"  [OK] Mode Leave-One-Day-Out menghasilkan {len(folds)} fold:")
+    for f_idx, tgl_uji, tr, te in folds:
+        print(f"       Fold {f_idx+1}: Uji={tgl_uji} ({len(te)} adegan), Latih={len(tr)} adegan")
+        
+    print("\nSEMUA UJI ATURAN PEMBAGIAN DAN MODE LODO LOLOS DENGAN BENAR.")
 
 if __name__ == "__main__":
     test_split_rule()

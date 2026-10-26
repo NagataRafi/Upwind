@@ -103,16 +103,22 @@ Alur pemrosesan data Upwind dirancang mengikuti prinsip modularitas: lapisan pen
 1. **Pengunduhan Data Mentah (Komponen A)**:
    - Data mentah diunduh dari *bucket* publik AWS S3 `noaa-himawari8` (arsip 2019) dan `noaa-himawari9` (operasional 2026). Formatnya adalah biner terkompresi *Himawari Standard Data* (`.DAT.bz2`).
    - Kode pelaksana: [`pipeline/unduh_pilot_8_adegan.py`](file:///C:/Users/ADMIN/upwind_proj/pipeline/unduh_pilot_8_adegan.py) untuk data latih pilot dan [`pipeline/pipeline_h9.py`](file:///C:/Users/ADMIN/upwind_proj/pipeline/pipeline_h9.py) untuk data operasional terkini.
-2. **Kalibrasi Radiometrik Fisis**:
-   - Nilai hitungan digital (*digital count*) pada berkas HSD diubah menjadi besaran fisis:
-     - Kanal optik tampak/inframerah dekat (B01, B02, B03, B04) dikalibrasi menjadi **Reflektansi Puncak Atmosfer (Albedo)**.
+2. **Kalibrasi Radiometrik Fisis dan Normalisasi**:
+   - Nilai pada berkas HSD diubah menjadi besaran yang dinormalisasi:
+     - Kanal optik tampak/inframerah dekat (B01, B02, B03, B04) **tidak disimpan sebagai nilai mentah (*raw digital counts*)** dan **tidak menggunakan kalibrasi albedo fluks surya fisik**. Nilai mentah dinormalisasi menggunakan peregangan persentil 2%–98% (`selip`) ke rentang $[0.0, 1.0]$:
+       $$\text{selip}(x) = \text{clip}\left(\frac{x - P_2(x)}{P_{98}(x) - P_2(x) + 10^{-9}}, 0, 1\right)$$
+       di mana $P_2(x)$ dan $P_{98}(x)$ adalah persentil ke-2 dan ke-98 dari larik piksel wilayah tersebut.
      - Kanal inframerah termal (B07 3,9 µm dan B13 10,4 µm) dikalibrasi radiansi lalu dikonversi menjadi **Brightness Temperature (TB)** dalam satuan Kelvin menggunakan inversi persamaan radiasi Planck.
    - Kode pelaksana: [`pipeline/hsd_header.py`](file:///C:/Users/ADMIN/upwind_proj/pipeline/hsd_header.py) dan [`pipeline/olah_himawari_fm1.py`](file:///C:/Users/ADMIN/upwind_proj/pipeline/olah_himawari_fm1.py).
-3. **Penyetaraan Geometri ke Grid Bersama 1 km**:
-   - Resolusi asli instrumen AHI (*Advanced Himawari Imager*) berbeda-beda per kanal: B03 H9 beresolusi 0,5 km, B01/B02/B04 beresolusi 1 km, dan B07/B13 beresolusi 2 km pada titik sub-satelit. **[Literatur]**
+3. **Penyetaraan Geometri ke Grid Bersama 1 km dan Risiko Resolusi B03**:
+   - Resolusi asli instrumen AHI (*Advanced Himawari Imager*) berbeda-beda per kanal: B03 H9 beresolusi 0,5 km (R05), B01/B02/B04 beresolusi 1 km (R10), dan B07/B13 beresolusi 2 km (R20). **[Literatur]**
    - Agar dapat disusun menjadi satu larik tensor, seluruh kanal disetarakan ke grid seragam 0,01 derajat (~1 km):
      - Kanal resolusi kasar 2 km diinterpolasi menggunakan metode **Bilinear**.
-     - Kanal resolusi tajam 0,5 km (B03 H9) diperkecil skalanya menggunakan metode **Area-Averaging** (agregasi kotak rata-rata) guna menjaga integritas energi pantulan dan mencegah distorsi aliasing. **[Usulan desain]**
+     - Kanal resolusi tajam 0,5 km (B03 H9) diperkecil skalanya menggunakan metode **Area-Averaging** (agregasi kotak rata-rata / BOX) guna menjaga integritas energi pantulan dan mencegah distorsi aliasing. **[Usulan desain]**
+   - **Perbedaan perlakuan B03 H8 vs H9:**
+     - Pada Himawari-9 (2026), seluruh bingkai B03 diambil dari R05 (0,5 km) dan di-*downsample* ke 1 km dengan Area-Averaging.
+     - Pada Himawari-8 (2019), bingkai konteks historis ($t-10, t-30, t-40$) diunduh dalam resolusi kasar R20 (2 km) dan di-*upsample* ke 1 km dengan Bilinear, sedangkan bingkai utama ($t_0$) diambil dari R10 (1 km) atau R20 (2 km).
+     - *Risiko ketidaksetaraan:* Terjadi asimetri resolusi spasial; fitur riwayat temporal B03 pada H8 lebih kabur (*blurry*) dibanding H9 yang tajam.
    - Kode pelaksana: [`pipeline/pembuat_dataset.py`](file:///C:/Users/ADMIN/upwind_proj/pipeline/pembuat_dataset.py).
 4. **Penyusunan Tumpukan 15 Kanal Fitur Temporal**:
    - Asap kebakaran hutan memiliki sifat dinamis (bergerak dan memudar seiring waktu), berbeda dengan daratan yang statis atau awan konvektif yang bergerak cepat. Oleh karena itu, model dirancang menerima informasi multi-temporal dari 4 cuplikan waktu: **[Usulan desain]**
@@ -123,12 +129,15 @@ Alur pemrosesan data Upwind dirancang mengikuti prinsip modularitas: lapisan pen
      *(Catatan: slot $t-20$ sengaja tidak digunakan karena slot waktu tersebut merupakan jendela kalibrasi rutin/housekeeping internal satelit JMA yang sering kosong).*
    - Total dimensi masukan: $(15, H, W)$.
 5. **Pembuatan Topeng Awan Dingin (Cold Cloud Mask)**:
-   - Dibuat dari kanal termal B13 pada waktu $t_0$: semua piksel dengan $TB_{13} < 265\text{ K}$ ditandai sebagai awan es/awan tebal tinggi bertemperatur sangat dingin.
+   - Dibuat dari kanal termal B13 pada waktu $t_0$: semua piksel dengan TB13 < 265 K ditandai sebagai awan es/awan tebal tinggi bertemperatur sangat dingin.
    - Topeng ini bertindak sebagai filter biner keras: piksel awan dingin otomatis dieksklusi dari pendeteksian asap.
-6. **Pemotongan Ukuran Standar 256×256**:
-   - Wilayah studi Kalimantan Tengah (grid 460×640) dipotong menjadi 6 petak *patch* 256×256.
-   - Wilayah Riau (grid 500×900) dipotong menjadi 8 petak *patch* 256×256.
+6. **Pemotongan Ukuran Standar 256×256 (Tumpang Tindih / Overlap, Bukan Padding)**:
+   - Pemotongan grid ke ukuran seragam 256×256 menggunakan strategi **tumpang tindih (*overlap*)**, **bukan padding**:
+     - Wilayah Kalimantan Tengah (grid 460×640) dibagi menjadi 6 potongan: 2 baris (indeks baris 0..256 dan 204..460, tumpang tindih 52 piksel) × 3 kolom (indeks kolom 0..256, 192..448, 384..640, tumpang tindih 64 piksel).
+     - Wilayah Riau (grid 500×900) dibagi menjadi 8 potongan: 2 baris (indeks baris 0..256 dan 244..500, tumpang tindih 12 piksel) × 4 kolom (indeks kolom 0..256, 214..470, 428..684, 644..900, tumpang tindih 42 piksel).
+   - Seluruh piksel pada setiap potongan berukuran 256×256 adalah piksel koordinat bumi yang valid (100% valid, tanpa nilai nol tiruan/padding), sehingga tidak diperlukan topeng piksel valid tambahan.
    - Menghasilkan 14 petak per adegan (total 112 petak untuk 8 adegan pilot), disimpan dalam format `.npz` float32 pada `D:\upwind_data\dataset_p3a`.
+   - Kolom `daylight` dihitung berdasarkan **Sudut Zenit Matahari (Solar Zenith Angle / SZA)** pada titik pusat koordinat tiap potongan (SZA < 85° menandakan siang hari), bukan nilai konstanta True.
 7. **Rencana Inferensi Model AI (Fase P3 - BELUM ADA)**:
    - File patch diproses oleh model segmentasi AI untuk menghasilkan peta probabilitas keberadaan asap $[0.0, 1.0]$ dan peta estimasi ketidakpastian (*uncertainty*).
 8. **Rencana Algoritma Smoke-to-Source (Fase P4 - BELUM ADA)**:
@@ -196,8 +205,8 @@ Alur pemrosesan data Upwind dirancang mengikuti prinsip modularitas: lapisan pen
    Temperatur ekuivalen suatu benda hitam sempurna (*blackbody*) dalam satuan Kelvin ($K$) yang akan memancarkan jumlah radiasi termal yang sama pada panjang gelombang tertentu, dihitung menggunakan pembalikan persamaan Planck:
    $$T_B = \frac{h \cdot c}{k \cdot \lambda \cdot \ln\left(\frac{2 \cdot h \cdot c^2}{\lambda^5 \cdot L_\lambda} + 1\right)}$$
    Di mana $L_\lambda$ adalah radiansi spektral yang diukur satelit. Kanal B13 (10,4 µm) mengukur suhu puncak awan atau permukaan bumi. **[Literatur]**
-3. **Topeng Awan Dingin ($TB_{13} < 265\text{ K}$):**
-   Aturan penyaringan fisis yang menetapkan bahwa setiap piksel dengan suhu kecerahan inframerah termal kanal 13 di bawah $265\text{ K}$ (sekitar $-8,15^\circ\text{C}$) dipastikan merupakan awan konvektif tinggi atau lapisan es puncak troposfer, bukan asap gambut dekat permukaan tanah tropis yang bersuhu hangat ($>275\text{ K}$). **[Usulan desain]**
+3. **Topeng Awan Dingin (TB13 < 265 K):**
+   Aturan penyaringan fisis yang menetapkan bahwa setiap piksel dengan suhu kecerahan inframerah termal kanal 13 di bawah 265 K (sekitar -8,15°C) dipastikan merupakan awan konvektif tinggi atau lapisan es puncak troposfer, bukan asap gambut dekat permukaan tanah tropis yang bersuhu hangat (>275 K). **[Usulan desain]**
 4. **Resampling Bilinear vs Area-Averaging:**
    - *Bilinear Interpolation:* Mengestimasi nilai piksel baru berdasarkan interpolasi rata-rata terbobot jarak dari 4 piksel tetangga terdekat. Sangat cocok untuk memperhalus atau memperbesar citra dari resolusi kasar (2 km) ke resolusi target (1 km).
    - *Area-Averaging (Box Aggregation):* Menghitung nilai piksel baru berdasarkan rata-rata murni seluruh piksel asal yang berada di dalam luasan kotak target. Wajib digunakan saat memperkecil (*downsampling*) pita resolusi tajam (misal B03 0,5 km ke 1 km) agar energi pantulan radiometrik tetap lestari tanpa menghasilkan artefak interferensi (*aliasing*). **[Literatur]**
@@ -338,4 +347,4 @@ Dokumen ini mencatat secara jujur beberapa hal teknis yang belum dapat dipastika
 5. **Relevansi Dataset Pembanding Eksternal (SmokeViz):**
    Penggunaan bobot awal (*pre-trained weights*) dari dataset publik seperti SmokeViz (NeurIPS 2025) belum dapat dipastikan kecocokannya karena SmokeViz dibangun menggunakan instrumen sensor ABI pada satelit GOES yang memantau wilayah benua Amerika Utara (vegetasi hutan konifer/semak subtropis), yang memiliki karakteristik spektral berbeda nyata dengan kebakaran lahan gambut tropis di Indonesia. **[Literatur]**
 6. **Kalibrasi Ambang Batas Topeng Awan Dingin Tropis:**
-   Ambang batas $TB_{13} < 265\text{ K}$ saat ini ditetapkan sebagai aturan heuristik desain awal. Karakteristik awan sirus tipis (*cirrus*) di atmosfer tropis Indonesia yang sering kali bertemperatur relatif hangat ($265\text{ K} - 273\text{ K}$) namun tetap membingungkan deteksi visual asap belum dievaluasi batas toleransinya secara kuantitatif. **[Usulan desain]**
+   Ambang batas TB13 < 265 K saat ini ditetapkan sebagai aturan heuristik desain awal. Karakteristik awan sirus tipis (*cirrus*) di atmosfer tropis Indonesia yang sering kali bertemperatur relatif hangat (265 K - 273 K) namun tetap membingungkan deteksi visual asap belum dievaluasi batas toleransinya secara kuantitatif. **[Usulan desain]**

@@ -27,12 +27,35 @@ import json
 import time
 import numpy as np
 from PIL import Image
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import DATA_ROOT
 from unduh_pilot_8_adegan import PILOT_SCENES
 from olah_himawari_fm1 import baca_hsd, tb_ir, selip, potong_lalo
+
+def hitung_sudut_zenit_surya(dt_utc, lat, lon):
+    """
+    Menghitung sudut zenit matahari (Solar Zenith Angle / SZA dalam derajat)
+    berdasarkan algoritma NOAA Solar Calculator / Spencer (1971).
+    Daylight dinyatakan True bila SZA < 85 derajat (matahari di atas ufuk).
+    """
+    doy = dt_utc.timetuple().tm_yday
+    jam = dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0
+    gamma = 2.0 * math.pi / 365.0 * (doy - 1 + (jam - 12.0) / 24.0)
+    eqtime = 229.18 * (0.000075 + 0.001868 * math.cos(gamma) - 0.032077 * math.sin(gamma)
+                       - 0.014615 * math.cos(2 * gamma) - 0.040849 * math.sin(2 * gamma))
+    decl = (0.006918 - 0.399912 * math.cos(gamma) + 0.070257 * math.sin(gamma)
+            - 0.006758 * math.cos(2 * gamma) + 0.000907 * math.sin(2 * gamma)
+            - 0.002697 * math.cos(3 * gamma) + 0.00148 * math.sin(3 * gamma))
+    tst = jam * 60.0 + eqtime + 4.0 * lon
+    ha_rad = math.radians(tst / 4.0 - 180.0)
+    lat_rad = math.radians(lat)
+    cos_sza = math.sin(lat_rad) * math.sin(decl) + math.cos(lat_rad) * math.cos(decl) * math.cos(ha_rad)
+    cos_sza = max(-1.0, min(1.0, cos_sza))
+    sza = math.degrees(math.acos(cos_sza))
+    return sza, sza < 85.0
 
 DATASET_DIR = os.path.join(DATA_ROOT, "dataset_p3a")
 
@@ -231,6 +254,12 @@ def proses_satu_adegan(sc, out_dir):
             patch_lon_w = round(loB + c0 * dlon, 4)
             patch_lon_e = round(loB + c1 * dlon, 4)
             
+            # Hitung sudut zenit surya di pusat patch
+            patch_lat_c = (patch_lat_n + patch_lat_s) / 2.0
+            patch_lon_c = (patch_lon_w + patch_lon_e) / 2.0
+            dt_key = datetime.strptime(f"{date_str} {kt}", "%Y-%m-%d %H%M").replace(tzinfo=timezone.utc)
+            sza_deg, is_daylight = hitung_sudut_zenit_surya(dt_key, patch_lat_c, patch_lon_c)
+            
             patch_id = f"patch_{sid}_{reg_id}_p{p_idx:02d}"
             out_file = os.path.join(out_dir, f"{patch_id}.npz")
             
@@ -246,7 +275,8 @@ def proses_satu_adegan(sc, out_dir):
                 "col_slice": [c0, c1],
                 "bbox": [patch_lon_w, patch_lat_s, patch_lon_e, patch_lat_n],
                 "cloud_fraction": round(cloud_fraction, 4),
-                "daylight": True,
+                "solar_zenith_angle": round(float(sza_deg), 2),
+                "daylight": bool(is_daylight),
                 "shape": list(patch_feat.shape),
                 "channels": KANAL_DESKRIPSI
             }
