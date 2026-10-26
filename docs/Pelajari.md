@@ -1,6 +1,6 @@
 # Panduan Belajar Proyek Upwind (Pelajari.md)
 
-Panduan ini disusun untuk mahasiswa D3 Telekomunikasi yang sedang mempelajari pengolahan citra satelit dan *deep learning* melalui proyek Upwind (*Pemantau Asap Karhutla dan Titik Panas Hulu Asap*). Dokumen ini menyajikan peta kode nyata, alur data fisis, konsep teoretis penting, status terkini proyek, dan urutan belajar bertahap.
+Panduan ini disusun untuk mahasiswa D4 Jaringan Telekomunikasi Digital yang sedang mempelajari pengolahan citra satelit dan *deep learning* melalui proyek Upwind (*Pemantau Asap Karhutla dan Titik Panas Hulu Asap*). Dokumen ini menyajikan peta kode nyata, alur data fisis, konsep teoretis penting, status terkini proyek, dan urutan belajar bertahap.
 
 Label klaim yang digunakan di seluruh dokumen:
 - **[Literatur]**: bersumber dari makalah, dokumentasi teknis resmi, atau standar operasional yang dapat ditautkan.
